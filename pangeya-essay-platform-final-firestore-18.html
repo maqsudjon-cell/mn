@@ -213,6 +213,33 @@
       border-left:3px solid #22c55e;
       border-radius:10px;
       font-size:13px;
+      white-space:pre-wrap;
+      word-wrap:break-word;
+    }
+    /* Structured formatting for teacher feedback with bullet icons */
+    .feedback .fb-check{
+      display:block;
+      padding-left:22px;
+      position:relative;
+      margin:4px 0;
+    }
+    .feedback .fb-check::before{
+      content:'✔';
+      position:absolute;
+      left:0;
+      color:#22c55e;
+    }
+    .feedback .fb-cross{
+      display:block;
+      padding-left:22px;
+      position:relative;
+      margin:4px 0;
+    }
+    .feedback .fb-cross::before{
+      content:'✘';
+      position:absolute;
+      left:0;
+      color:#ef4444;
     }
     .essay-actions{
       margin-top:6px;
@@ -486,7 +513,7 @@
       <h3>About Maqsudjon Polatov</h3>
       <p style="font-size:14px; margin-bottom:8px;">This platform was created by <strong>Maqsudjon Polatov</strong>, the owner of <strong>Uzglidex</strong>, <strong>Pangeya</strong> and <strong>37p.ai</strong> and the founder of the <strong>NubAi</strong> and <strong>Matsumi</strong> projects. He built this system to provide a simple and intuitive way for students to write, submit, and receive feedback on essays.</p>
       <p style="font-size:14px; margin-bottom:8px;">The Pangeya Essay Platform supports collaborative learning and continuous improvement. Teachers can review essays, highlight key sections, underline important points, or strike through errors, and leave constructive feedback directly on each submission. Essays are stored in the cloud and remain accessible across devices for both students and teachers.</p>
-      <p style="font-size:14px; margin-bottom:8px;">Press <strong>Ctrl + `</strong> again to close this window and return to the platform.</p>
+      <p style="font-size:14px; margin-bottom:8px;">Press <strong>Ctrl + Shift + 2</strong> again to close this window and return to the platform.</p>
       <div class="modal-actions">
         <button class="small-btn small-cancel" onclick="toggleInfoModal()">Close</button>
       </div>
@@ -508,7 +535,7 @@
       <p style="font-size:13px; margin-bottom:8px;">2. Once in teacher mode, you can edit any essay, highlight important sections, underline useful phrases, or strike through errors.</p>
       <p style="font-size:13px; margin-bottom:8px;">3. You can also add or edit feedback by clicking <strong>Add/Edit Feedback</strong> next to an essay.</p>
       <p style="font-size:13px; margin-bottom:8px;">4. The teacher key is confidential. If you need the key, please contact <strong>Maqsudjon Polatov</strong> personally to request it.</p>
-      <p style="font-size:13px; margin-bottom:8px;">Press <strong>Ctrl + ;</strong> again to close this window and return to the platform.</p>
+      <p style="font-size:13px; margin-bottom:8px;">Press <strong>Ctrl + Shift + 1</strong> again to close this window and return to the platform.</p>
       <div class="modal-actions">
         <button class="small-btn small-cancel" onclick="toggleGuideModal()">Close</button>
       </div>
@@ -536,6 +563,13 @@
     let teacherMode = false;
     let currentEditId = null;
     let currentFeedbackId = null;
+
+    // Helper function to escape HTML special characters to prevent XSS
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
 
     // Firebase configuration (extracted from user's screenshot)
     const firebaseConfig = {
@@ -668,7 +702,24 @@
         if (data.feedback) {
           const fb = document.createElement('div');
           fb.className = 'feedback';
-          fb.innerHTML = '<strong>Teacher Feedback:</strong> ' + data.feedback;
+          // Format the feedback with proper line breaks and structured bullets
+          // Split by newlines and process each line individually
+          const lines = data.feedback.split('\n');
+          const formattedLines = lines.map(line => {
+            const trimmedLine = line.trim();
+            if (trimmedLine.startsWith('✔')) {
+              // Wrap checkmark lines with styled span (remove the leading ✔ as it's added via CSS ::before)
+              const content = trimmedLine.substring(1).trim();
+              return '<span class="fb-check">' + escapeHtml(content) + '</span>';
+            } else if (trimmedLine.startsWith('✘')) {
+              // Wrap cross lines with styled span (remove the leading ✘ as it's added via CSS ::before)
+              const content = trimmedLine.substring(1).trim();
+              return '<span class="fb-cross">' + escapeHtml(content) + '</span>';
+            }
+            // Preserve original line spacing for regular lines
+            return escapeHtml(line);
+          });
+          fb.innerHTML = '<strong>Teacher Feedback:</strong><br>' + formattedLines.join('<br>');
           card.appendChild(fb);
         }
 
@@ -1032,14 +1083,14 @@
     // Expose info modal toggle to global scope
     window.toggleInfoModal = toggleInfoModal;
 
-    // Keyboard shortcut: press Ctrl + ` (backtick) to toggle the info modal
+    // Keyboard shortcut: press Ctrl + Shift + 2 to toggle the info modal (Author Info)
     document.addEventListener('keydown', (e) => {
       // Ignore key presses if the user is typing in an input/textarea to prevent accidental triggers
       const activeTag = document.activeElement && document.activeElement.tagName;
       if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
-      // Use Ctrl (or Cmd on Mac) in combination with the backtick (`) key for toggling the info modal.
-      // This combination is rarely used in everyday typing and won't interfere with composing essays.
-      if ((e.ctrlKey || e.metaKey) && e.key === '`') {
+      // Use Ctrl (or Cmd on Mac) + Shift + 2 for toggling the Author Info modal.
+      // Using e.code for consistent behavior across different keyboard layouts.
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.code === 'Digit2') {
         e.preventDefault();
         toggleInfoModal();
       }
@@ -1055,14 +1106,14 @@
     // Expose guide modal toggle to global scope
     window.toggleGuideModal = toggleGuideModal;
 
-    // Keyboard shortcut: press Ctrl + ; (semicolon) to toggle the guide modal
+    // Keyboard shortcut: press Ctrl + Shift + 1 to toggle the guide modal (User Guide)
     document.addEventListener('keydown', (e) => {
       // Ignore key presses when the user is typing in an input/textarea to avoid accidental triggers
       const activeTag = document.activeElement && document.activeElement.tagName;
       if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
-      // Use Ctrl (or Cmd on Mac) combined with the semicolon (;) key to open/close the guide.
-      // Semicolon is seldom used with Ctrl, so it won't conflict with normal typing.
-      if ((e.ctrlKey || e.metaKey) && e.key === ';') {
+      // Use Ctrl (or Cmd on Mac) + Shift + 1 for toggling the User Guide modal.
+      // Using e.code for consistent behavior across different keyboard layouts.
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.code === 'Digit1') {
         e.preventDefault();
         toggleGuideModal();
       }
