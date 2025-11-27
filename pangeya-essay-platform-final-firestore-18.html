@@ -709,11 +709,14 @@
             const trimmedLine = line.trim();
             if (trimmedLine.startsWith('✔')) {
               // Wrap checkmark lines with styled span (remove the leading ✔ as it's added via CSS ::before)
-              return '<span class="fb-check">' + escapeHtml(trimmedLine.substring(1).trim()) + '</span>';
+              const content = trimmedLine.substring(1).trim();
+              return '<span class="fb-check">' + escapeHtml(content) + '</span>';
             } else if (trimmedLine.startsWith('✘')) {
               // Wrap cross lines with styled span (remove the leading ✘ as it's added via CSS ::before)
-              return '<span class="fb-cross">' + escapeHtml(trimmedLine.substring(1).trim()) + '</span>';
+              const content = trimmedLine.substring(1).trim();
+              return '<span class="fb-cross">' + escapeHtml(content) + '</span>';
             }
+            // Preserve original line spacing for regular lines
             return escapeHtml(line);
           });
           fb.innerHTML = '<strong>Teacher Feedback:</strong><br>' + formattedLines.join('<br>');
