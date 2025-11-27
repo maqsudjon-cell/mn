@@ -564,6 +564,13 @@
     let currentEditId = null;
     let currentFeedbackId = null;
 
+    // Helper function to escape HTML special characters to prevent XSS
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
     // Firebase configuration (extracted from user's screenshot)
     const firebaseConfig = {
       apiKey: "AIzaSyBnmbg7CyLki-M1E4rxPevJ741yTykliDA",
@@ -696,15 +703,20 @@
           const fb = document.createElement('div');
           fb.className = 'feedback';
           // Format the feedback with proper line breaks and structured bullets
-          let feedbackContent = data.feedback;
-          // Convert newlines to <br> for proper line breaks
-          feedbackContent = feedbackContent.replace(/\n/g, '<br>');
-          // Replace lines starting with ✔ or ✘ with styled spans for alignment
-          feedbackContent = feedbackContent.replace(/(^|<br>)✔\s*/g, '$1<span class="fb-check">');
-          feedbackContent = feedbackContent.replace(/(^|<br>)✘\s*/g, '$1<span class="fb-cross">');
-          // Close spans at line breaks or end
-          feedbackContent = feedbackContent.replace(/(<span class="fb-check">|<span class="fb-cross">)([^<]*?)(<br>|$)/g, '$1$2</span>$3');
-          fb.innerHTML = '<strong>Teacher Feedback:</strong><br>' + feedbackContent;
+          // Split by newlines and process each line individually
+          const lines = data.feedback.split('\n');
+          const formattedLines = lines.map(line => {
+            const trimmedLine = line.trim();
+            if (trimmedLine.startsWith('✔')) {
+              // Wrap checkmark lines with styled span (remove the leading ✔ as it's added via CSS ::before)
+              return '<span class="fb-check">' + escapeHtml(trimmedLine.substring(1).trim()) + '</span>';
+            } else if (trimmedLine.startsWith('✘')) {
+              // Wrap cross lines with styled span (remove the leading ✘ as it's added via CSS ::before)
+              return '<span class="fb-cross">' + escapeHtml(trimmedLine.substring(1).trim()) + '</span>';
+            }
+            return escapeHtml(line);
+          });
+          fb.innerHTML = '<strong>Teacher Feedback:</strong><br>' + formattedLines.join('<br>');
           card.appendChild(fb);
         }
 
@@ -1074,8 +1086,8 @@
       const activeTag = document.activeElement && document.activeElement.tagName;
       if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
       // Use Ctrl (or Cmd on Mac) + Shift + 2 for toggling the Author Info modal.
-      // This combination avoids using H or I keys and is easy to remember.
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === '2' || e.key === '@')) {
+      // Using e.code for consistent behavior across different keyboard layouts.
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.code === 'Digit2') {
         e.preventDefault();
         toggleInfoModal();
       }
@@ -1097,8 +1109,8 @@
       const activeTag = document.activeElement && document.activeElement.tagName;
       if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
       // Use Ctrl (or Cmd on Mac) + Shift + 1 for toggling the User Guide modal.
-      // This combination avoids using H or I keys and is easy to remember.
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === '1' || e.key === '!')) {
+      // Using e.code for consistent behavior across different keyboard layouts.
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.code === 'Digit1') {
         e.preventDefault();
         toggleGuideModal();
       }
