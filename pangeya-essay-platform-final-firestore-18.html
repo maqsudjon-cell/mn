@@ -314,6 +314,10 @@
       background:rgba(255,255,255,0.95);
       border:1px solid rgba(0,0,0,0.12);
     }
+    .light-theme .essay-card .essay-text,
+    .light-theme .essay-card .feedback{
+      color:#111827;
+    }
     .light-theme .feedback{
       background:rgba(34,197,94,0.16);
       border-left:3px solid #16a34a;
@@ -329,19 +333,67 @@
       color:#111827;
     }
 
-    /* Highlighted text styling */
-    .user-highlight{
+    /* Light theme - ensure inputs and textareas have dark text */
+    .light-theme input[type="text"],
+    .light-theme textarea{
+      background:#f9fafb;
+      color:#111827;
+      border:1px solid rgba(0,0,0,0.15);
+    }
+    .light-theme input[type="text"]::placeholder,
+    .light-theme textarea::placeholder{
+      color:#6b7280;
+    }
+    .light-theme input[type="text"]:focus,
+    .light-theme textarea:focus{
+      background:#ffffff;
+      border-color:#818cf8;
+      box-shadow:0 0 0 1px rgba(129,140,248,0.7);
+    }
+
+    /* Light theme - modal content text */
+    .light-theme .modal-content{
+      background:#ffffff;
+      color:#111827;
+    }
+    .light-theme .modal-content h3,
+    .light-theme .modal-content h4,
+    .light-theme .modal-content p{
+      color:#111827;
+    }
+    .light-theme #editArea,
+    .light-theme #feedbackArea{
+      background:#f9fafb;
+      color:#111827;
+      border:1px solid rgba(0,0,0,0.15);
+    }
+    .light-theme #editArea:focus,
+    .light-theme #feedbackArea:focus{
+      background:#ffffff;
+      border-color:#818cf8;
+    }
+
+    /* Highlighted text styling - using mark tag */
+    mark, .user-highlight{
       background-color:#fef08a;
       /* Use a dark text color to ensure legibility on yellow background */
       color:#111827;
     }
 
-    /* Underline and strike classes for toggle handling */
-    .underline-text{
+    /* Underline and strike styling */
+    u, .underline-text{
       text-decoration:underline;
     }
-    .strike-text{
+    s, .strike-text{
       text-decoration:line-through;
+    }
+
+    /* Donation QR code styling */
+    .donation-qr{
+      width:160px;
+      border-radius:8px;
+      margin-top:12px;
+      display:block;
     }
 
     /* Modal */
@@ -510,10 +562,24 @@
   <!-- About / Info Modal -->
   <div class="modal" id="infoModal">
     <div class="modal-content">
-      <h3>About Maqsudjon Polatov</h3>
-      <p style="font-size:14px; margin-bottom:8px;">This platform was created by <strong>Maqsudjon Polatov</strong>, the owner of <strong>Uzglidex</strong>, <strong>Pangeya</strong> and <strong>37p.ai</strong> and the founder of the <strong>NubAi</strong> and <strong>Matsumi</strong> projects. He built this system to provide a simple and intuitive way for students to write, submit, and receive feedback on essays.</p>
-      <p style="font-size:14px; margin-bottom:8px;">The Pangeya Essay Platform supports collaborative learning and continuous improvement. Teachers can review essays, highlight key sections, underline important points, or strike through errors, and leave constructive feedback directly on each submission. Essays are stored in the cloud and remain accessible across devices for both students and teachers.</p>
-      <p style="font-size:14px; margin-bottom:8px;">Press <strong>Ctrl + Shift + 2</strong> again to close this window and return to the platform.</p>
+      <h3>Author Information</h3>
+      <div style="font-size:14px; line-height:1.6; white-space:pre-wrap;">👤 Developed by: Maqsudjon Polatov
+Creator of:
+• Pangeya Essay Platform
+• Uzglidex Marketplace
+• 37P.AI automated tools
+• NubAI medical assistant
+• Matsumi music project
+
+📌 Support development
+If you would like to support future updates and improvements,
+you can send a donation to the following card:
+
+💳 9860 6004 0548 1208
+
+Or pay via QR:</div>
+      <img src="donation_qr.png" alt="Donation QR Code" class="donation-qr" />
+      <p style="font-size:13px; margin-top:12px; color:var(--text-muted);">Press <strong>Ctrl + `</strong> again to close this window.</p>
       <div class="modal-actions">
         <button class="small-btn small-cancel" onclick="toggleInfoModal()">Close</button>
       </div>
@@ -535,7 +601,7 @@
       <p style="font-size:13px; margin-bottom:8px;">2. Once in teacher mode, you can edit any essay, highlight important sections, underline useful phrases, or strike through errors.</p>
       <p style="font-size:13px; margin-bottom:8px;">3. You can also add or edit feedback by clicking <strong>Add/Edit Feedback</strong> next to an essay.</p>
       <p style="font-size:13px; margin-bottom:8px;">4. The teacher key is confidential. If you need the key, please contact <strong>Maqsudjon Polatov</strong> personally to request it.</p>
-      <p style="font-size:13px; margin-bottom:8px;">Press <strong>Ctrl + Shift + 1</strong> again to close this window and return to the platform.</p>
+      <p style="font-size:13px; margin-bottom:8px;">Press <strong>Ctrl + ;</strong> again to close this window and return to the platform.</p>
       <div class="modal-actions">
         <button class="small-btn small-cancel" onclick="toggleGuideModal()">Close</button>
       </div>
@@ -831,13 +897,31 @@
       renderEssays();
     }
 
-    // Rich text formatting commands for the edit modal
-    // Applies a highlight (background color) to selected text
-    function highlightSelection() {
-      const sel = window.getSelection();
-      if (!sel.rangeCount) return;
+    // Rich text formatting commands for the edit modal and feedback modal
+    // Helper function to find closest tag parent
+    function findTagParent(node, tagNames, editableParent) {
+      while (node && node !== editableParent) {
+        if (node.nodeType === 1) {
+          const nodeName = node.nodeName.toLowerCase();
+          if (tagNames.includes(nodeName)) {
+            return node;
+          }
+          // Also check for class-based styling (legacy support)
+          if (node.classList) {
+            if (tagNames.includes('mark') && node.classList.contains('user-highlight')) return node;
+            if (tagNames.includes('u') && node.classList.contains('underline-text')) return node;
+            if (tagNames.includes('s') && node.classList.contains('strike-text')) return node;
+          }
+        }
+        node = node.parentNode;
+      }
+      return null;
+    }
+
+    // Get the editable parent element for the current selection
+    function getEditableParent(sel) {
+      if (!sel.rangeCount) return null;
       const range = sel.getRangeAt(0);
-      // Find the nearest contenteditable parent for the selection
       let containerNode = range.commonAncestorContainer;
       let editableParent = null;
       if (containerNode.nodeType === 1) {
@@ -845,114 +929,74 @@
       } else {
         editableParent = containerNode.parentElement ? containerNode.parentElement.closest('[contenteditable="true"]') : null;
       }
-      // Only allow highlighting in the essay edit area or feedback essay display
-      if (!editableParent || (editableParent.id !== 'editArea' && editableParent.id !== 'feedbackEssay')) return;
+      // Only allow in editArea or feedbackEssay
+      if (!editableParent || (editableParent.id !== 'editArea' && editableParent.id !== 'feedbackEssay')) return null;
+      return editableParent;
+    }
+
+    // Applies a highlight (wrap in <mark>) to selected text - toggles if already highlighted
+    function highlightSelection() {
+      const sel = window.getSelection();
+      const editableParent = getEditableParent(sel);
+      if (!editableParent) return;
       editableParent.focus();
       const selectedText = sel.toString();
       if (!selectedText) return;
-      // Determine if either anchor or focus node is inside a highlight span
-      function findHighlightParent(node) {
-        while (node && node !== editableParent) {
-          if (node.nodeType === 1 && node.classList && node.classList.contains('user-highlight')) {
-            return node;
-          }
-          node = node.parentNode;
-        }
-        return null;
-      }
-      let highlightParent = findHighlightParent(sel.anchorNode) || findHighlightParent(sel.focusNode);
-      if (highlightParent) {
-        // Remove highlight by replacing the span with its text content
-        const text = highlightParent.textContent;
-        highlightParent.replaceWith(document.createTextNode(text));
+
+      // Check if selection is inside a <mark> element
+      let markParent = findTagParent(sel.anchorNode, ['mark'], editableParent) || findTagParent(sel.focusNode, ['mark'], editableParent);
+      if (markParent) {
+        // Remove highlight by replacing the mark with its text content
+        const text = markParent.textContent;
+        markParent.replaceWith(document.createTextNode(text));
       } else {
-        // Apply highlight using a span with class
-        const spanHtml = `<span class="user-highlight">${selectedText}</span>`;
-        document.execCommand('insertHTML', false, spanHtml);
+        // Apply highlight using <mark> tag
+        const markHtml = `<mark>${selectedText}</mark>`;
+        document.execCommand('insertHTML', false, markHtml);
       }
     }
 
-    // Applies underline to selected text
+    // Applies underline (wrap in <u>) to selected text - toggles if already underlined
     function underlineSelection() {
       const sel = window.getSelection();
-      if (!sel.rangeCount) return;
-      const range = sel.getRangeAt(0);
-      let containerNode = range.commonAncestorContainer;
-      let editableParent = null;
-      if (containerNode.nodeType === 1) {
-        editableParent = containerNode.closest('[contenteditable="true"]');
-      } else {
-        editableParent = containerNode.parentElement ? containerNode.parentElement.closest('[contenteditable="true"]') : null;
-      }
-      if (!editableParent || (editableParent.id !== 'editArea' && editableParent.id !== 'feedbackEssay')) return;
+      const editableParent = getEditableParent(sel);
+      if (!editableParent) return;
       editableParent.focus();
       const selectedText = sel.toString();
       if (!selectedText) return;
-      // Helper to find underline span or element
-      function findUnderlineParent(node) {
-        while (node && node !== editableParent) {
-          if (node.nodeType === 1) {
-            if (node.classList && node.classList.contains('underline-text')) {
-              return node;
-            }
-            const dec = node.style && node.style.textDecoration;
-            if (dec && dec.includes('underline')) {
-              return node;
-            }
-          }
-          node = node.parentNode;
-        }
-        return null;
-      }
-      let underlineParent = findUnderlineParent(sel.anchorNode) || findUnderlineParent(sel.focusNode);
+
+      // Check if selection is inside a <u> element
+      let underlineParent = findTagParent(sel.anchorNode, ['u'], editableParent) || findTagParent(sel.focusNode, ['u'], editableParent);
       if (underlineParent) {
+        // Remove underline by replacing with text content
         const text = underlineParent.textContent;
         underlineParent.replaceWith(document.createTextNode(text));
       } else {
-        const spanHtml = `<span class="underline-text">${selectedText}</span>`;
-        document.execCommand('insertHTML', false, spanHtml);
+        // Apply underline using <u> tag
+        const uHtml = `<u>${selectedText}</u>`;
+        document.execCommand('insertHTML', false, uHtml);
       }
     }
 
-    // Applies strikethrough to selected text
+    // Applies strikethrough (wrap in <s>) to selected text - toggles if already struck
     function strikeSelection() {
       const sel = window.getSelection();
-      if (!sel.rangeCount) return;
-      const range = sel.getRangeAt(0);
-      let containerNode = range.commonAncestorContainer;
-      let editableParent = null;
-      if (containerNode.nodeType === 1) {
-        editableParent = containerNode.closest('[contenteditable="true"]');
-      } else {
-        editableParent = containerNode.parentElement ? containerNode.parentElement.closest('[contenteditable="true"]') : null;
-      }
-      if (!editableParent || (editableParent.id !== 'editArea' && editableParent.id !== 'feedbackEssay')) return;
+      const editableParent = getEditableParent(sel);
+      if (!editableParent) return;
       editableParent.focus();
       const selectedText = sel.toString();
       if (!selectedText) return;
-      // Helper to find strike span or element
-      function findStrikeParent(node) {
-        while (node && node !== editableParent) {
-          if (node.nodeType === 1) {
-            if (node.classList && node.classList.contains('strike-text')) {
-              return node;
-            }
-            const dec = node.style && node.style.textDecoration;
-            if (dec && dec.includes('line-through')) {
-              return node;
-            }
-          }
-          node = node.parentNode;
-        }
-        return null;
-      }
-      let strikeParent = findStrikeParent(sel.anchorNode) || findStrikeParent(sel.focusNode);
+
+      // Check if selection is inside an <s> element
+      let strikeParent = findTagParent(sel.anchorNode, ['s'], editableParent) || findTagParent(sel.focusNode, ['s'], editableParent);
       if (strikeParent) {
+        // Remove strikethrough by replacing with text content
         const text = strikeParent.textContent;
         strikeParent.replaceWith(document.createTextNode(text));
       } else {
-        const spanHtml = `<span class="strike-text">${selectedText}</span>`;
-        document.execCommand('insertHTML', false, spanHtml);
+        // Apply strikethrough using <s> tag
+        const sHtml = `<s>${selectedText}</s>`;
+        document.execCommand('insertHTML', false, sHtml);
       }
     }
 
@@ -1083,19 +1127,6 @@
     // Expose info modal toggle to global scope
     window.toggleInfoModal = toggleInfoModal;
 
-    // Keyboard shortcut: press Ctrl + Shift + 2 to toggle the info modal (Author Info)
-    document.addEventListener('keydown', (e) => {
-      // Ignore key presses if the user is typing in an input/textarea to prevent accidental triggers
-      const activeTag = document.activeElement && document.activeElement.tagName;
-      if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
-      // Use Ctrl (or Cmd on Mac) + Shift + 2 for toggling the Author Info modal.
-      // Using e.code for consistent behavior across different keyboard layouts.
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.code === 'Digit2') {
-        e.preventDefault();
-        toggleInfoModal();
-      }
-    });
-
     // Guide Modal toggle function
     function toggleGuideModal() {
       const guideModal = document.getElementById('guideModal');
@@ -1106,17 +1137,33 @@
     // Expose guide modal toggle to global scope
     window.toggleGuideModal = toggleGuideModal;
 
-    // Keyboard shortcut: press Ctrl + Shift + 1 to toggle the guide modal (User Guide)
+    // Keyboard shortcuts:
+    // Ctrl + ; = toggle User Guide modal
+    // Ctrl + ` = toggle Author/About modal
+    // These should work even when focused on essay textarea but not insert characters
     document.addEventListener('keydown', (e) => {
-      // Ignore key presses when the user is typing in an input/textarea to avoid accidental triggers
-      const activeTag = document.activeElement && document.activeElement.tagName;
-      if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
-      // Use Ctrl (or Cmd on Mac) + Shift + 1 for toggling the User Guide modal.
-      // Using e.code for consistent behavior across different keyboard layouts.
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.code === 'Digit1') {
+      // Ctrl + ; (semicolon) for User Guide - key code is 'Semicolon'
+      if ((e.ctrlKey || e.metaKey) && e.key === ';') {
         e.preventDefault();
+        e.stopPropagation();
         toggleGuideModal();
+        return;
       }
+      // Ctrl + ` (backtick) for Author Info - key code is 'Backquote'
+      if ((e.ctrlKey || e.metaKey) && e.key === '`') {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleInfoModal();
+        return;
+      }
+    });
+
+    // Close info and guide modals when clicking outside content
+    window.addEventListener('click', (e) => {
+      const infoM = document.getElementById('infoModal');
+      const guideM = document.getElementById('guideModal');
+      if (e.target === infoM) toggleInfoModal();
+      if (e.target === guideM) toggleGuideModal();
     });
   </script>
 </body>
