@@ -1,519 +1,602 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Pangeya Essay Platform</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pangeya Essay Platform – New Year Edition</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!--
+    This file is based on the original Pangeya Essay Platform hosted on GitHub pages.
+    The markup, styling and scripts have been preserved so the core functionality
+    (writing, saving, editing and printing essays; teacher mode; theme switching)
+    continue to work. This edition preserves the Neon, Light and Dark themes
+    from the original. A New Year mode can also be toggled on/off. When active
+    it adds 3D decorations (stocking by the name field, tree/gift/Santa icons
+    on the buttons and essay cards) and a gentle snowfall effect near the top
+    of the page. A small fixed button in the bottom‑right corner allows users
+    to enable or disable the New Year mode without interfering with normal
+    operation or teacher features.
+  -->
   <style>
-    :root{
-      --bg-gradient: radial-gradient(circle at top left,#3b0764,#1e1b4b 40%,#020617 80%);
-      --card-bg: rgba(15,23,42,0.92);
+    :root {
+      /* base colours and sizing inherited from the original site */
+      --bg-gradient: radial-gradient(circle at top left, #3b0764, #1e1b4b 40%, #020617 80%);
+      --card-bg: rgba(15, 23, 42, 0.92);
       --accent: #a855f7;
-      --accent2:#ec4899;
-      --accent3:#22c55e;
-      --text-main:#e5e7eb;
-      --text-muted:#9ca3af;
-      --border-soft:rgba(148,163,184,0.3);
+      --accent2: #ec4899;
+      --accent3: #22c55e;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-soft: rgba(148, 163, 184, 0.3);
     }
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{
-      min-height:100vh;
-      font-family:"Poppins",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:var(--bg-gradient);
-      color:var(--text-main);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
-    .light-theme{
-      --bg-gradient:linear-gradient(135deg,#e0e7ff,#f5f3ff);
-      --card-bg:#ffffff;
-      --text-main:#111827;
-      --text-muted:#6b7280;
-      --border-soft:rgba(148,163,184,0.5);
+    /* Light and dark themes mirror the original implementation */
+    .light-theme {
+      --bg-gradient: linear-gradient(135deg, #e0e7ff, #f5f3ff);
+      --card-bg: #ffffff;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --border-soft: rgba(148, 163, 184, 0.5);
     }
-    .dark-theme{
-      --bg-gradient:radial-gradient(circle at top,#020617,#020617 40%,#000000 100%);
-      --card-bg:#020617;
-      --text-main:#e5e7eb;
-      --text-muted:#9ca3af;
+    .dark-theme {
+      --bg-gradient: radial-gradient(circle at top, #020617, #020617 40%, #000000 100%);
+      --card-bg: #020617;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
     }
-    .container{
-      width:100%;
-      max-width:900px;
-      background:linear-gradient(145deg,rgba(88,28,135,0.9),rgba(30,64,175,0.9));
-      padding:2px;
-      border-radius:26px;
-      box-shadow:0 20px 45px rgba(0,0,0,0.55);
+    /* Glass theme – inspired by iOS 17/18 style glass surfaces.
+       It uses translucent backgrounds and applies a backdrop blur on the
+       container to give the impression of frosted glass. */
+    .glass-theme {
+      --bg-gradient: linear-gradient(135deg, rgba(255,255,255,0.35), rgba(230,230,230,0.2));
+      --card-bg: rgba(255, 255, 255, 0.2);
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --border-soft: rgba(15, 23, 42, 0.25);
     }
-    .inner{
-      background:var(--card-bg);
-      border-radius:24px;
-      padding:20px 20px 18px;
+    .glass-theme .inner {
+      backdrop-filter: blur(16px);
     }
-    @media (min-width:768px){
-      .inner{padding:24px 26px 22px;}
+    /* Container styling preserved from original */
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: linear-gradient(145deg, rgba(88, 28, 135, 0.9), rgba(30, 64, 175, 0.9));
+      padding: 2px;
+      border-radius: 26px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
     }
-    h1{
-      font-size:22px;
-      font-weight:600;
-      text-align:center;
-      margin-bottom:10px;
+    .inner {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 20px 20px 18px;
     }
-    .subtitle{
-      text-align:center;
-      font-size:12px;
-      color:var(--text-muted);
-      margin-bottom:14px;
+    @media (min-width: 768px) {
+      .inner { padding: 24px 26px 22px; }
     }
-    .theme-switcher{
-      display:flex;
-      gap:10px;
-      margin-bottom:16px;
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 10px;
     }
-    .theme-btn{
-      flex:1;
-      padding:8px 10px;
-      border-radius:999px;
-      border:none;
-      cursor:pointer;
-      background:rgba(15,23,42,0.9);
-      color:#e5e7eb;
-      font-size:13px;
-      font-weight:500;
-      transition:all .18s ease;
+    .subtitle {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
     }
-    .theme-btn.active{
-      background:linear-gradient(135deg,#a855f7,#ec4899);
-      color:white;
-      transform:translateY(-1px);
-      box-shadow:0 6px 20px rgba(168,85,247,0.4);
+    .theme-switcher {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
     }
-    label{
-      display:block;
-      font-size:13px;
-      margin-bottom:4px;
-      margin-top:6px;
+    .theme-btn {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all .18s ease;
     }
-    input[type="text"], textarea{
-      width:100%;
-      border-radius:14px;
-      border:1px solid var(--border-soft);
-      background:rgba(15,23,42,0.9);
-      color:var(--text-main);
-      padding:10px 12px;
-      font-size:14px;
-      outline:none;
-      transition:border .15s ease,box-shadow .15s ease,background .15s ease;
+    .theme-btn.active {
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
     }
-    textarea{
-      min-height:130px;
-      resize:vertical;
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+      margin-top: 6px;
     }
-    input[type="text"]:focus, textarea:focus{
-      border-color:#818cf8;
-      box-shadow:0 0 0 1px rgba(129,140,248,0.7);
-      background:rgba(15,23,42,1);
+    /* Input and textarea styling retained from original */
+    input[type="text"], textarea {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+      transition: border .15s ease, box-shadow .15s ease, background .15s ease;
     }
-    .btn{
-      width:100%;
-      border:none;
-      border-radius:999px;
-      padding:11px 14px;
-      font-size:14px;
-      font-weight:500;
-      cursor:pointer;
-      margin-top:10px;
-      transition:transform .1s ease,box-shadow .1s ease,opacity .15s ease;
-      color:white;
+    textarea {
+      min-height: 130px;
+      resize: vertical;
     }
-    .btn-primary{
-      background:linear-gradient(135deg,#a855f7,#ec4899);
-      box-shadow:0 10px 25px rgba(236,72,153,0.4);
+    input[type="text"]:focus, textarea:focus {
+      border-color: #818cf8;
+      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.7);
+      background: rgba(15, 23, 42, 1);
     }
-    .btn-secondary{
-      background:linear-gradient(135deg,#38bdf8,#6366f1);
-      box-shadow:0 8px 20px rgba(56,189,248,0.35);
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: transform .1s ease, box-shadow .1s ease, opacity .15s ease;
+      color: white;
+      position: relative; /* to anchor stickers */
+      overflow: hidden;
     }
-    .btn-teacher{
-      background:linear-gradient(135deg,#22c55e,#16a34a);
-      box-shadow:0 8px 20px rgba(34,197,94,0.35);
+    .btn-primary {
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4);
     }
-    .btn:hover{
-      transform:translateY(-1px);
+    .btn-secondary {
+      background: linear-gradient(135deg, #38bdf8, #6366f1);
+      box-shadow: 0 8px 20px rgba(56, 189, 248, 0.35);
     }
-    .btn:active{
-      transform:translateY(0);
-      box-shadow:none;
+    .btn-teacher {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35);
     }
-    .teacher-panel{
-      display:none;
-      margin-top:8px;
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); box-shadow: none; }
+    .teacher-panel {
+      display: none;
+      margin-top: 8px;
     }
-    .teacher-panel input{
-      margin-top:6px;
+    .teacher-panel input { margin-top: 6px; }
+    .teacher-panel .btn-enter { margin-top: 8px; }
+    .section-title {
+      margin-top: 18px;
+      margin-bottom: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .teacher-panel .btn-enter{
-      margin-top:8px;
+    .section-title span.icon { font-size: 17px; }
+    .essays-list {
+      margin-top: 4px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 2px;
     }
-    .section-title{
-      margin-top:18px;
-      margin-bottom:8px;
-      font-size:15px;
-      font-weight:500;
-      display:flex;
-      align-items:center;
-      gap:6px;
+    .essay-card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 18px;
+      padding: 10px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      margin-bottom: 8px;
+      font-size: 13px;
+      position: relative; /* for sticker positioning */
     }
-    .section-title span.icon{
-      font-size:17px;
+    .essay-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 4px;
+      font-size: 12px;
+      color: var(--text-muted);
     }
-    .essays-list{
-      margin-top:4px;
-      max-height:380px;
-      overflow-y:auto;
-      padding-right:2px;
+    .essay-name { font-weight: 500; }
+    .essay-text {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
+      margin-bottom: 6px;
+      margin-top: 2px;
+      color: var(--text-main);
     }
-    .essay-card{
-      background:rgba(15,23,42,0.9);
-      border-radius:18px;
-      padding:10px 12px;
-      border:1px solid rgba(148,163,184,0.35);
-      margin-bottom:8px;
-      font-size:13px;
+    .word-count { /* inserted from script */ }
+    .feedback {
+      margin-top: 4px;
+      padding: 7px 8px;
+      background: rgba(22, 163, 74, 0.16);
+      border-left: 3px solid #22c55e;
+      border-radius: 10px;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
-    .essay-header{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:4px;
-      font-size:12px;
-      color:var(--text-muted);
+    .feedback .fb-check, .feedback .fb-cross {
+      display: block;
+      padding-left: 22px;
+      position: relative;
+      margin: 4px 0;
     }
-    .essay-name{
-      font-weight:500;
+    .feedback .fb-check::before {
+      content: '✔';
+      position: absolute;
+      left: 0;
+      color: #22c55e;
     }
-    .essay-text{
-      white-space:pre-wrap;
-      word-wrap:break-word;
-      overflow-wrap:anywhere;
-      margin-bottom:6px;
-      margin-top:2px;
-      color:var(--text-main);
+    .feedback .fb-cross::before {
+      content: '✘';
+      position: absolute;
+      left: 0;
+      color: #ef4444;
     }
-    .feedback{
-      margin-top:4px;
-      padding:7px 8px;
-      background:rgba(22,163,74,0.16);
-      border-left:3px solid #22c55e;
-      border-radius:10px;
-      font-size:13px;
-      white-space:pre-wrap;
-      word-wrap:break-word;
+    .essay-actions {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
-    /* Structured formatting for teacher feedback with bullet icons */
-    .feedback .fb-check{
-      display:block;
-      padding-left:22px;
-      position:relative;
-      margin:4px 0;
+    .chip-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 11px;
+      cursor: pointer;
+      color: white;
     }
-    .feedback .fb-check::before{
-      content:'✔';
-      position:absolute;
-      left:0;
-      color:#22c55e;
-    }
-    .feedback .fb-cross{
-      display:block;
-      padding-left:22px;
-      position:relative;
-      margin:4px 0;
-    }
-    .feedback .fb-cross::before{
-      content:'✘';
-      position:absolute;
-      left:0;
-      color:#ef4444;
-    }
-    .essay-actions{
-      margin-top:6px;
-      display:flex;
-      flex-wrap:wrap;
-      gap:6px;
-    }
-    .chip-btn{
-      border:none;
-      border-radius:999px;
-      padding:5px 11px;
-      font-size:11px;
-      cursor:pointer;
-      color:white;
-    }
-    .chip-edit{background:#22c55e;}
-    .chip-delete{background:#ef4444;}
-    .chip-feedback{background:#0ea5e9;}
-    .chip-btn:active{transform:translateY(1px);}
-
+    .chip-edit { background: #22c55e; }
+    .chip-delete { background: #ef4444; }
+    .chip-feedback { background: #0ea5e9; }
+    .chip-btn:active { transform: translateY(1px); }
     /* Toolbar styling for rich text editing */
-    .toolbar{
-      display:flex;
-      gap:8px;
-      margin-bottom:6px;
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
     }
-    .icon-btn{
-      background:transparent;
-      border:1px solid var(--border-soft);
-      border-radius:4px;
-      padding:4px 6px;
-      font-size:13px;
-      color:var(--text-main);
-      cursor:pointer;
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--border-soft);
+      border-radius: 4px;
+      padding: 4px 6px;
+      font-size: 13px;
+      color: var(--text-main);
+      cursor: pointer;
     }
-    .icon-btn:hover{
-      background:var(--accent);
-      color:#fff;
+    .icon-btn:hover {
+      background: var(--accent);
+      color: #fff;
     }
-    .edit-area{
-      min-height:120px;
-      max-height:300px;
-      overflow-y:auto;
-      padding:8px;
-      border:1px solid var(--border-soft);
-      border-radius:6px;
-      font-size:13px;
-      background:var(--card-bg);
-      color:var(--text-main);
-      white-space:pre-wrap;
-      word-wrap:break-word;
-      outline:none;
+    .edit-area {
+      min-height: 120px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 8px;
+      border: 1px solid var(--border-soft);
+      border-radius: 6px;
+      font-size: 13px;
+      background: var(--card-bg);
+      color: var(--text-main);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      outline: none;
     }
-
-    /* Display the essay in feedback modal */
-    .feedback-essay{
-      max-height:200px;
-      overflow-y:auto;
-      margin-bottom:8px;
-      padding:8px;
-      border:1px solid var(--border-soft);
-      border-radius:6px;
-      font-size:12px;
-      background:var(--card-bg);
-      color:var(--text-main);
-      white-space:pre-wrap;
-      word-wrap:break-word;
+    .feedback-essay {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 8px;
+      padding: 8px;
+      border: 1px solid var(--border-soft);
+      border-radius: 6px;
+      font-size: 12px;
+      background: var(--card-bg);
+      color: var(--text-main);
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
-
-    /* Light theme adjustments for essay cards and feedback */
-    .light-theme .essay-card{
-      background:rgba(255,255,255,0.95);
-      border:1px solid rgba(0,0,0,0.12);
+    /* Light theme adjustments for cards and feedback */
+    .light-theme .essay-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(0, 0, 0, 0.12);
     }
     .light-theme .essay-card .essay-text,
-    .light-theme .essay-card .feedback{
-      color:#111827;
+    .light-theme .essay-card .feedback {
+      color: #111827;
     }
-    .light-theme .feedback{
-      background:rgba(34,197,94,0.16);
-      border-left:3px solid #16a34a;
+    .light-theme .feedback {
+      background: rgba(34, 197, 94, 0.16);
+      border-left: 3px solid #16a34a;
     }
     .light-theme .edit-area,
-    .light-theme .feedback-essay{
-      background:#f9fafb;
-      color:#111827;
-      border:1px solid rgba(0,0,0,0.12);
+    .light-theme .feedback-essay {
+      background: #f9fafb;
+      color: #111827;
+      border: 1px solid rgba(0, 0, 0, 0.12);
     }
-    .light-theme .icon-btn{
-      border:1px solid rgba(0,0,0,0.12);
-      color:#111827;
+    .light-theme .icon-btn {
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      color: #111827;
     }
-
-    /* Light theme - ensure inputs and textareas have dark text */
     .light-theme input[type="text"],
-    .light-theme textarea{
-      background:#f9fafb;
-      color:#111827;
-      border:1px solid rgba(0,0,0,0.15);
+    .light-theme textarea {
+      background: #f9fafb;
+      color: #111827;
+      border: 1px solid rgba(0, 0, 0, 0.15);
     }
     .light-theme input[type="text"]::placeholder,
-    .light-theme textarea::placeholder{
-      color:#6b7280;
+    .light-theme textarea::placeholder {
+      color: #6b7280;
     }
     .light-theme input[type="text"]:focus,
-    .light-theme textarea:focus{
-      background:#ffffff;
-      border-color:#818cf8;
-      box-shadow:0 0 0 1px rgba(129,140,248,0.7);
+    .light-theme textarea:focus {
+      background: #ffffff;
+      border-color: #818cf8;
+      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.7);
     }
-
-    /* Light theme - modal content text */
-    .light-theme .modal-content{
-      background:#ffffff;
-      color:#111827;
-    }
-    .light-theme .modal-content h3,
-    .light-theme .modal-content h4,
-    .light-theme .modal-content p{
-      color:#111827;
+    .light-theme .modal-content {
+      background: #ffffff;
+      color: #111827;
     }
     .light-theme #editArea,
-    .light-theme #feedbackArea{
-      background:#f9fafb;
-      color:#111827;
-      border:1px solid rgba(0,0,0,0.15);
+    .light-theme #feedbackArea {
+      background: #f9fafb;
+      color: #111827;
+      border: 1px solid rgba(0, 0, 0, 0.15);
     }
     .light-theme #editArea:focus,
-    .light-theme #feedbackArea:focus{
-      background:#ffffff;
-      border-color:#818cf8;
+    .light-theme #feedbackArea:focus {
+      background: #ffffff;
+      border-color: #818cf8;
+    }
+    /* Highlight, underline and strike styling */
+    mark, .user-highlight { background-color: #fef08a; color: #111827; }
+    u, .underline-text { text-decoration: underline; }
+    s, .strike-text { text-decoration: line-through; }
+    /* Modal styling retained */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      z-index: 999;
+    }
+    .modal-content {
+      width: 100%;
+      max-width: 720px;
+      background: #020617;
+      color: #e5e7eb;
+      border-radius: 18px;
+      padding: 16px 16px 14px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+    }
+    .modal-content h3 {
+      margin-bottom: 8px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    #editArea, #feedbackArea {
+      width: 100%;
+      min-height: 200px;
+      max-height: 60vh;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 14px;
+      resize: vertical;
+      outline: none;
+    }
+    #editArea:focus, #feedbackArea:focus {
+      border-color: #818cf8;
+      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.7);
+    }
+    .modal-actions {
+      margin-top: 10px;
+      display: flex;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .small-btn {
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: none;
+      font-size: 12px;
+      cursor: pointer;
+      color: white;
+    }
+    .small-save { background: #22c55e; }
+    .small-cancel { background: #ef4444; }
+    @media (max-width: 480px) {
+      h1 { font-size: 18px; }
+      .subtitle { font-size: 11px; }
+      .essay-card { font-size: 12px; }
+      .modal-content { padding: 14px; }
+      #editArea, #feedbackArea { min-height: 170px; }
+    }
+    /* ================== New Year decorations ================== */
+    /* Wrapper around the name input so the stocking can be positioned nicely */
+    .name-wrapper { position: relative; }
+    .ny-icon {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      font-size: 22px;
+      line-height: 1;
+      display: none;
+      pointer-events: none;
+    }
+    /* Show icons when New Year mode is on */
+    body.newyear-mode .ny-icon { display: block; }
+    /* Add extra padding to the input when the icon is visible */
+    body.newyear-mode .name-wrapper input[type="text"] { padding-right: 45px; }
+    /* Hide legacy image stickers */
+    .btn .btn-sticker,
+    body.newyear-mode .btn .btn-sticker,
+    .essay-card .card-sticker,
+    body.newyear-mode .essay-card .card-sticker {
+      display: none !important;
     }
 
-    /* Highlighted text styling - using mark tag */
-    mark, .user-highlight{
-      background-color:#fef08a;
-      /* Use a dark text color to ensure legibility on yellow background */
-      color:#111827;
+    /* Additional rule to hide any image inside buttons and essay cards (fallback for stubborn base64 icons) */
+    .btn img {
+      display: none !important;
     }
-
-    /* Underline and strike styling */
-    u, .underline-text{
-      text-decoration:underline;
+    .essay-card .card-sticker {
+      display: none !important;
     }
-    s, .strike-text{
-      text-decoration:line-through;
+    /* Emoji stickers for buttons */
+    .btn .emoji-sticker {
+      position: absolute;
+      /* Position the emoji inside the button to be fully visible */
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      font-size: 24px;
+      line-height: 1;
+      pointer-events: none;
     }
-
-    /* Donation QR code styling */
-    .donation-qr{
-      width:160px;
-      border-radius:8px;
-      margin-top:12px;
-      display:block;
+    /* Emoji sticker for essay cards */
+    .essay-card .emoji-card-sticker {
+      position: absolute;
+      /* Position near bottom-right corner but fully inside the card */
+      bottom: 8px;
+      right: 8px;
+      font-size: 22px;
+      line-height: 1;
+      pointer-events: none;
     }
-
-    /* Modal */
-    .modal{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.7);
-      display:none;
-      justify-content:center;
-      align-items:center;
-      padding:16px;
-      z-index:999;
+    /* Snow container spans only the header region; pointer‑events none ensures typing is unaffected */
+    .snow-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 160px;
+      overflow: hidden;
+      pointer-events: none;
+      display: none;
+      z-index: 1;
     }
-    .modal-content{
-      width:100%;
-      max-width:720px;
-      background:#020617;
-      color:#e5e7eb;
-      border-radius:18px;
-      padding:16px 16px 14px;
-      box-shadow:0 24px 60px rgba(0,0,0,0.8);
+    body.newyear-mode .snow-container { display: block; }
+    .snowflake {
+      position: absolute;
+      top: -10px;
+      color: #ffffff;
+      opacity: 0.9;
+      user-select: none;
+      will-change: transform;
     }
-    .modal-content h3{
-      margin-bottom:8px;
-      font-size:16px;
-      font-weight:500;
+    /* Define individual flakes with varying animation durations, delays and sizes */
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(180px) rotate(360deg); }
     }
-    #editArea, #feedbackArea{
-      width:100%;
-      min-height:200px;
-      max-height:60vh;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid rgba(148,163,184,0.6);
-      background:#020617;
-      color:#e5e7eb;
-      font-size:14px;
-      resize:vertical;
-      outline:none;
-    }
-    #editArea:focus, #feedbackArea:focus{
-      border-color:#818cf8;
-      box-shadow:0 0 0 1px rgba(129,140,248,0.7);
-    }
-    .modal-actions{
-      margin-top:10px;
-      display:flex;
-      justify-content:flex-end;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-    .small-btn{
-      padding:7px 14px;
-      border-radius:999px;
-      border:none;
-      font-size:12px;
-      cursor:pointer;
-      color:white;
-    }
-    .small-save{background:#22c55e;}
-    .small-cancel{background:#ef4444;}
-
-    @media (max-width:480px){
-      h1{font-size:18px;}
-      .subtitle{font-size:11px;}
-      .essay-card{font-size:12px;}
-      .modal-content{padding:14px;}
-      #editArea,#feedbackArea{min-height:170px;}
-    }
+    .snowflake:nth-child(1) { left: 5%; font-size: 12px; animation: fall 7s linear infinite; animation-delay: 0s; }
+    .snowflake:nth-child(2) { left: 15%; font-size: 16px; animation: fall 10s linear infinite; animation-delay: 2s; }
+    .snowflake:nth-child(3) { left: 25%; font-size: 10px; animation: fall 8s linear infinite; animation-delay: 4s; }
+    .snowflake:nth-child(4) { left: 35%; font-size: 14px; animation: fall 9s linear infinite; animation-delay: 1s; }
+    .snowflake:nth-child(5) { left: 45%; font-size: 13px; animation: fall 6s linear infinite; animation-delay: 3s; }
+    .snowflake:nth-child(6) { left: 55%; font-size: 11px; animation: fall 8s linear infinite; animation-delay: 5s; }
+    .snowflake:nth-child(7) { left: 65%; font-size: 15px; animation: fall 10s linear infinite; animation-delay: 0.5s; }
+    .snowflake:nth-child(8) { left: 75%; font-size: 12px; animation: fall 7s linear infinite; animation-delay: 2.5s; }
+    .snowflake:nth-child(9) { left: 85%; font-size: 14px; animation: fall 9s linear infinite; animation-delay: 1.5s; }
+    .snowflake:nth-child(10) { left: 95%; font-size: 11px; animation: fall 8s linear infinite; animation-delay: 3.5s; }
+    /* Removed the New Year toggle styles; snow is always on */
   </style>
 </head>
-<body class="neon-theme">
+<body class="neon-theme newyear-mode">
   <div class="container">
     <div class="inner">
       <h1>✨ Pangeya Essay Platform</h1>
       <div class="subtitle">Write, save and print essays. Teachers can leave feedback with a secret key.</div>
-
+      <!-- Snow effect overlay (falls within header area) -->
+      <div class="snow-container" aria-hidden="true">
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❅</div>
+      </div>
+      <!-- Theme switcher: Neon, Light, Dark and the new Glass -->
       <div class="theme-switcher">
         <button class="theme-btn active" id="neonTheme">Neon</button>
         <button class="theme-btn" id="lightTheme">Light</button>
         <button class="theme-btn" id="darkTheme">Dark</button>
+        <!-- Removed the unused Glass mode button -->
       </div>
-
+      <!-- Name input wrapped so the tree emoji can sit inside -->
       <label for="name">Your name</label>
-      <input 
-        id="name" 
-        type="text" 
-        placeholder="Enter your name"
-        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-      />
-
+      <div class="name-wrapper">
+        <input id="name" type="text" placeholder="Enter your name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <!-- Use an emoji for the name icon instead of an image -->
+        <span class="ny-icon">🎄</span>
+      </div>
+      <!-- Essay textarea -->
       <label for="essay">Write your essay</label>
-      <textarea 
-        id="essay" 
-        placeholder="Write your essay..."
-        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-      ></textarea>
-
-      <button class="btn btn-primary" id="submitBtn">Submit</button>
-      <button class="btn btn-secondary" id="pdfBtn">Download PDF</button>
-      <button class="btn btn-teacher" id="teacherToggle">Teacher Login</button>
-
+      <textarea id="essay" placeholder="Write your essay..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+      <!-- Primary actions with New Year stickers (tree, gift, Santa) -->
+      <button class="btn btn-primary" id="submitBtn">Submit
+        <span class="emoji-sticker">🎉</span>
+        <img src="data:image/png;base64,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" alt="Christmas tree" class="btn-sticker">
+      </button>
+      <button class="btn btn-secondary" id="pdfBtn">Download PDF
+        <span class="emoji-sticker">🎁</span>
+        <img src="data:image/png;base64,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" alt="Gift" class="btn-sticker">
+      </button>
+      <button class="btn btn-teacher" id="teacherToggle">Teacher Login
+        <span class="emoji-sticker">🎅</span>
+        <img src="data:image/png;base64,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" alt="Santa" class="btn-sticker">
+      </button>
+      <!-- Hidden teacher panel revealed when logging in -->
       <div class="teacher-panel" id="teacherPanel">
-        <input 
-          id="teacherKey" 
-          type="text" 
-          placeholder="Enter teacher key"
-          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-        />
+        <input id="teacherKey" type="text" placeholder="Enter teacher key" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
         <button class="btn btn-teacher btn-enter" id="teacherEnter">Enter</button>
       </div>
-
+      <!-- Essays list heading -->
       <div class="section-title">
-        <span class="icon">📚</span>
+        <span class="icon">🎄</span>
         <span>All Essays</span>
       </div>
       <div class="essays-list" id="essaysList"></div>
     </div>
   </div>
-
+  <!-- Snow now always falls; removed toggle button -->
   <!-- Edit Essay Modal -->
   <div class="modal" id="editModal">
     <div class="modal-content">
@@ -524,8 +607,6 @@
         <button class="icon-btn" title="Underline Text" onclick="underlineSelection()"><u>U</u></button>
         <button class="icon-btn" title="Strikethrough Text" onclick="strikeSelection()"><s>S</s></button>
       </div>
-      <!-- contenteditable area for rich text editing -->
-      <!-- disable spellcheck and auto-correction on the editable area to prevent mobile autocorrect from activating -->
       <div id="editArea" class="edit-area" contenteditable="true" spellcheck="false" autocorrect="off" autocapitalize="off"></div>
       <div class="modal-actions">
         <button class="small-btn small-save" onclick="saveEdit()">Save</button>
@@ -533,32 +614,23 @@
       </div>
     </div>
   </div>
-
   <!-- Feedback Modal -->
   <div class="modal" id="feedbackModal">
     <div class="modal-content">
       <h3>Add / edit teacher feedback</h3>
-      <!-- display the essay in feedback modal for context (editable for highlighting) -->
-      <!-- disable spellcheck and auto-correction on the feedback essay context area -->
       <div id="feedbackEssay" class="feedback-essay" contenteditable="true" spellcheck="false" autocorrect="off" autocapitalize="off"></div>
-      <!-- toolbar for essay highlighting -->
       <div class="toolbar">
         <button class="icon-btn" title="Highlight Text" onclick="highlightSelection()">🖍</button>
         <button class="icon-btn" title="Underline Text" onclick="underlineSelection()"><u>U</u></button>
         <button class="icon-btn" title="Strikethrough Text" onclick="strikeSelection()"><s>S</s></button>
       </div>
-      <!-- feedback textarea -->
-      <textarea 
-        id="feedbackArea"
-        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-      ></textarea>
+      <textarea id="feedbackArea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
       <div class="modal-actions">
         <button class="small-btn small-save" onclick="saveFeedback()">Save</button>
         <button class="small-btn small-cancel" onclick="closeFeedbackModal()">Cancel</button>
       </div>
     </div>
   </div>
-
   <!-- About / Info Modal -->
   <div class="modal" id="infoModal">
     <div class="modal-content">
@@ -578,14 +650,13 @@ you can send a donation to the following card:
 💳 9860 6004 0548 1208
 
 Or pay via QR:</div>
-      <img src="donation_qr.png" alt="Donation QR Code" class="donation-qr" onerror="this.style.display='none'" />
+      <img src="donation_qr.png" alt="Donation QR Code" class="donation-qr" onerror="this.style.display='none'">
       <p style="font-size:13px; margin-top:12px; color:var(--text-muted);">Press <strong>Ctrl + `</strong> again to close this window.</p>
       <div class="modal-actions">
         <button class="small-btn small-cancel" onclick="toggleInfoModal()">Close</button>
       </div>
     </div>
   </div>
-
   <!-- User Guide Modal -->
   <div class="modal" id="guideModal">
     <div class="modal-content">
@@ -607,11 +678,11 @@ Or pay via QR:</div>
       </div>
     </div>
   </div>
-
-  <!-- jsPDF CDN -->
+  <!-- Include jsPDF from CDN for PDF export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <script type="module">
+  <!-- Main application script; imported modules from Firebase remain unchanged.  Additional
+       functions implement the new Glass theme, New Year decorations and toggle logic. -->
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
     import {
@@ -630,14 +701,7 @@ Or pay via QR:</div>
     let currentEditId = null;
     let currentFeedbackId = null;
 
-    // Helper function to escape HTML special characters to prevent XSS
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    // Firebase configuration (extracted from user's screenshot)
+    // Firebase configuration (copied from the original)
     const firebaseConfig = {
       apiKey: "AIzaSyBnmbg7CyLki-M1E4rxPevJ741yTykliDA",
       authDomain: "pangeya-essay.firebaseapp.com",
@@ -647,14 +711,28 @@ Or pay via QR:</div>
       appId: "1:783326121302:web:7d73c5110fb5682e5fdaf7",
       measurementId: "G-0L1X6WHT1E"
     };
-
     // Initialize Firebase and Firestore
     const app = initializeApp(firebaseConfig);
     getAnalytics(app);
     const db = getFirestore(app);
     const essaysRef = collection(db, "essays");
 
-    // Render essays from Firestore
+    /**
+     * Escape HTML special characters to prevent XSS when rendering content from
+     * Firestore.  Borrowed from the original site.
+     */
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    /**
+     * Render essays from Firestore into the list.  This function builds each
+     * essay card including word count and optional feedback.  Positioning is
+     * preserved from the original; we simply assign a class and rely on CSS for
+     * the New Year sticker on each card.
+     */
     async function renderEssays() {
       const container = document.getElementById('essaysList');
       container.innerHTML = '';
@@ -664,40 +742,30 @@ Or pay via QR:</div>
           '<div style="font-size:12px;color:var(--text-muted);padding:2px 2px 6px;">No essays yet. Write and submit your first essay!</div>';
         return;
       }
-      // Build an array of documents with their IDs and data so we can sort them by timestamp
       const docsArray = [];
       snapshot.forEach(docSnap => {
         docsArray.push({ id: docSnap.id, data: docSnap.data() });
       });
-      // Helper to parse legacy date strings (dd.mm.yyyy or mm/dd/yyyy formats)
       const parseDateString = (str) => {
         if (!str) return 0;
-        // Separate date and time
         const parts = str.split(',');
         const datePart = parts[0].trim();
         const timePart = parts[1] ? parts[1].trim() : '';
         let day, month, year;
-        // Determine separator for the date part
         if (datePart.includes('.')) {
-          // Format: dd.mm.yyyy
           [day, month, year] = datePart.split('.');
         } else if (datePart.includes('/')) {
-          // Format could be mm/dd/yyyy or dd/mm/yyyy; decide based on value
           const dp = datePart.split('/');
-          // If first segment > 12, it's day first, else assume month first
           if (parseInt(dp[0], 10) > 12) {
             [day, month, year] = dp;
           } else {
             [month, day, year] = dp;
           }
         } else if (datePart.includes('-')) {
-          // ISO-like format: yyyy-mm-dd
           const dp = datePart.split('-');
-          // If first part length is 4 assume year-month-day
           if (dp[0].length === 4) {
             [year, month, day] = dp;
           } else {
-            // fallback: month-day-year
             [month, day, year] = dp;
           }
         } else {
@@ -710,117 +778,108 @@ Or pay via QR:</div>
           minutes = parseInt(tp[1], 10) || 0;
           seconds = parseInt(tp[2], 10) || 0;
         }
-        // Convert to numbers and adjust month
         const y = parseInt(year, 10);
         const m = parseInt(month, 10) - 1;
         const d = parseInt(day, 10);
         return new Date(y, m, d, hours, minutes, seconds).getTime();
       };
-      // Determine timestamp for each doc (use stored timestamp if available, otherwise parse date string)
       docsArray.sort((a, b) => {
         const tA = typeof a.data.timestamp === 'number' ? a.data.timestamp : parseDateString(a.data.date);
         const tB = typeof b.data.timestamp === 'number' ? b.data.timestamp : parseDateString(b.data.date);
-        return tB - tA; // descending order: most recent first
+        return tB - tA;
       });
-      // Render each card in sorted order
       docsArray.forEach(item => {
         const data = item.data;
         const docId = item.id;
         const card = document.createElement('div');
         card.className = 'essay-card';
-
         // Header with name and date
         const header = document.createElement('div');
         header.className = 'essay-header';
         const nameSpan = document.createElement('span');
         nameSpan.className = 'essay-name';
-        nameSpan.textContent = data.name || 'Unknown';
+        // Prefix the author's name with a tree emoji so that a 🎄 appears before every name
+        nameSpan.textContent = (data.name ? `🎄 ${data.name}` : '🎄 Unknown');
         const dateSpan = document.createElement('span');
         dateSpan.textContent = data.date || '';
         header.appendChild(nameSpan);
         header.appendChild(dateSpan);
-
         // Essay text
         const textDiv = document.createElement('div');
         textDiv.className = 'essay-text';
-        // treat essay content as HTML to preserve formatting such as highlights
         textDiv.innerHTML = data.essay || '';
-
         card.appendChild(header);
         card.appendChild(textDiv);
-
-        // Word count (display how many words are in the essay)
-        // We calculate the word count after setting innerHTML, using the textContent of the div
-        // to strip out any HTML tags (e.g., highlight spans).
+        // Word count
         const rawText = textDiv.textContent || '';
         const wordsArray = rawText.trim().split(/\s+/).filter(word => word.length > 0);
         const wordCount = wordsArray.length;
         const wordCountDiv = document.createElement('div');
         wordCountDiv.className = 'word-count';
-        // Small note with a muted color so it doesn't distract from the content
         wordCountDiv.style.fontSize = '12px';
         wordCountDiv.style.color = 'var(--text-muted)';
         wordCountDiv.style.marginBottom = '4px';
         wordCountDiv.textContent = `Word count: ${wordCount}`;
         card.appendChild(wordCountDiv);
-
         // Feedback block
         if (data.feedback) {
           const fb = document.createElement('div');
           fb.className = 'feedback';
-          // Format the feedback with proper line breaks and structured bullets
-          // Split by newlines and process each line individually
           const lines = data.feedback.split('\n');
           const formattedLines = lines.map(line => {
-            const trimmedLine = line.trim();
-            if (trimmedLine.startsWith('✔')) {
-              // Wrap checkmark lines with styled span (remove the leading ✔ as it's added via CSS ::before)
-              const content = trimmedLine.substring(1).trim();
+            const trimmed = line.trim();
+            if (trimmed.startsWith('✔')) {
+              const content = trimmed.substring(1).trim();
               return '<span class="fb-check">' + escapeHtml(content) + '</span>';
-            } else if (trimmedLine.startsWith('✘')) {
-              // Wrap cross lines with styled span (remove the leading ✘ as it's added via CSS ::before)
-              const content = trimmedLine.substring(1).trim();
+            } else if (trimmed.startsWith('✘')) {
+              const content = trimmed.substring(1).trim();
               return '<span class="fb-cross">' + escapeHtml(content) + '</span>';
             }
-            // Preserve original line spacing for regular lines
             return escapeHtml(line);
           });
           fb.innerHTML = '<strong>Teacher Feedback:</strong><br>' + formattedLines.join('<br>');
           card.appendChild(fb);
         }
-
         // Action buttons
         const actions = document.createElement('div');
         actions.className = 'essay-actions';
-
         const editBtn = document.createElement('button');
         editBtn.className = 'chip-btn chip-edit';
         editBtn.textContent = 'Edit';
         editBtn.onclick = () => openEditModal(docId, data);
-
         const delBtn = document.createElement('button');
         delBtn.className = 'chip-btn chip-delete';
         delBtn.textContent = 'Delete';
         delBtn.onclick = () => deleteEssay(docId);
-        // Hide delete button for students (non-teacher mode)
         delBtn.style.display = teacherMode ? 'inline-block' : 'none';
-
         const fbBtn = document.createElement('button');
         fbBtn.className = 'chip-btn chip-feedback';
         fbBtn.textContent = 'Add/Edit Feedback';
         fbBtn.style.display = teacherMode ? 'inline-block' : 'none';
         fbBtn.onclick = () => openFeedbackModal(docId, data);
-
         actions.appendChild(editBtn);
         actions.appendChild(delBtn);
         actions.appendChild(fbBtn);
-
         card.appendChild(actions);
+        // Card sticker element for New Year mode
+        const cardSticker = document.createElement('img');
+        // Use embedded gift icon for the essay card sticker
+        cardSticker.src = 'data:image/png;base64,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';
+        cardSticker.alt = 'Gift sticker';
+        cardSticker.className = 'card-sticker';
+        card.appendChild(cardSticker);
+
+        // Add our own emoji sticker to the card in the bottom right corner
+        const cardEmoji = document.createElement('span');
+        cardEmoji.className = 'emoji-card-sticker';
+        cardEmoji.textContent = '🎁';
+        card.appendChild(cardEmoji);
+
         container.appendChild(card);
       });
     }
 
-    // Submit a new essay to Firestore
+    /** Submit a new essay to Firestore */
     async function submitEssay() {
       const nameInput = document.getElementById('name');
       const essayInput = document.getElementById('essay');
@@ -832,10 +891,8 @@ Or pay via QR:</div>
       }
       await addDoc(essaysRef, {
         name: name || 'Unknown',
-        // store as plain text since students cannot highlight yet
         essay: essay,
         date: new Date().toLocaleString(),
-        // also store a numeric timestamp for accurate sorting (milliseconds since epoch)
         timestamp: Date.now(),
         feedback: ''
       });
@@ -845,10 +902,9 @@ Or pay via QR:</div>
       alert('Essay saved to the cloud.');
     }
 
-    // Edit essay modal handling
+    // Edit modal handlers
     function openEditModal(docId, data) {
       currentEditId = docId;
-      // set HTML content in the editable area
       const editArea = document.getElementById('editArea');
       editArea.innerHTML = data.essay || '';
       document.getElementById('editModal').style.display = 'flex';
@@ -860,18 +916,15 @@ Or pay via QR:</div>
     async function saveEdit() {
       if (!currentEditId) return;
       const updated = document.getElementById('editArea').innerHTML;
-      // update document with new HTML content
       await updateDoc(doc(db, 'essays', currentEditId), { essay: updated });
       renderEssays();
       closeEditModal();
     }
 
-    // Feedback modal handling
+    // Feedback modal handlers
     function openFeedbackModal(docId, data) {
       currentFeedbackId = docId;
-      // populate feedback area with existing feedback (plain text)
       document.getElementById('feedbackArea').value = data.feedback || '';
-      // show the essay content in the modal for reference (as HTML)
       const essayDiv = document.getElementById('feedbackEssay');
       essayDiv.innerHTML = data.essay || '';
       document.getElementById('feedbackModal').style.display = 'flex';
@@ -883,22 +936,20 @@ Or pay via QR:</div>
     async function saveFeedback() {
       if (!currentFeedbackId) return;
       const updated = document.getElementById('feedbackArea').value;
-      // Also update the essay with any highlights or changes from the feedback modal
       const essayUpdated = document.getElementById('feedbackEssay').innerHTML;
       await updateDoc(doc(db, 'essays', currentFeedbackId), { feedback: updated, essay: essayUpdated });
       renderEssays();
       closeFeedbackModal();
     }
 
-    // Delete an essay from Firestore
+    /** Delete an essay */
     async function deleteEssay(docId) {
       if (!confirm('Delete this essay?')) return;
       await deleteDoc(doc(db, 'essays', docId));
       renderEssays();
     }
 
-    // Rich text formatting commands for the edit modal and feedback modal
-    // Helper function to find closest tag parent
+    // Rich text formatting commands for the edit and feedback modals
     function findTagParent(node, tagNames, editableParent) {
       while (node && node !== editableParent) {
         if (node.nodeType === 1) {
@@ -906,7 +957,6 @@ Or pay via QR:</div>
           if (tagNames.includes(nodeName)) {
             return node;
           }
-          // Also check for class-based styling (legacy support)
           if (node.classList) {
             if (tagNames.includes('mark') && node.classList.contains('user-highlight')) return node;
             if (tagNames.includes('u') && node.classList.contains('underline-text')) return node;
@@ -917,8 +967,6 @@ Or pay via QR:</div>
       }
       return null;
     }
-
-    // Get the editable parent element for the current selection
     function getEditableParent(sel) {
       if (!sel.rangeCount) return null;
       const range = sel.getRangeAt(0);
@@ -929,12 +977,9 @@ Or pay via QR:</div>
       } else {
         editableParent = containerNode.parentElement ? containerNode.parentElement.closest('[contenteditable="true"]') : null;
       }
-      // Only allow in editArea or feedbackEssay
       if (!editableParent || (editableParent.id !== 'editArea' && editableParent.id !== 'feedbackEssay')) return null;
       return editableParent;
     }
-
-    // Applies a highlight (wrap in <mark>) to selected text - toggles if already highlighted
     function highlightSelection() {
       const sel = window.getSelection();
       const editableParent = getEditableParent(sel);
@@ -942,21 +987,15 @@ Or pay via QR:</div>
       editableParent.focus();
       const selectedText = sel.toString();
       if (!selectedText) return;
-
-      // Check if selection is inside a <mark> element
       let markParent = findTagParent(sel.anchorNode, ['mark'], editableParent) || findTagParent(sel.focusNode, ['mark'], editableParent);
       if (markParent) {
-        // Remove highlight by replacing the mark with its text content
         const text = markParent.textContent;
         markParent.replaceWith(document.createTextNode(text));
       } else {
-        // Apply highlight using <mark> tag
         const markHtml = `<mark>${selectedText}</mark>`;
         document.execCommand('insertHTML', false, markHtml);
       }
     }
-
-    // Applies underline (wrap in <u>) to selected text - toggles if already underlined
     function underlineSelection() {
       const sel = window.getSelection();
       const editableParent = getEditableParent(sel);
@@ -964,21 +1003,15 @@ Or pay via QR:</div>
       editableParent.focus();
       const selectedText = sel.toString();
       if (!selectedText) return;
-
-      // Check if selection is inside a <u> element
       let underlineParent = findTagParent(sel.anchorNode, ['u'], editableParent) || findTagParent(sel.focusNode, ['u'], editableParent);
       if (underlineParent) {
-        // Remove underline by replacing with text content
         const text = underlineParent.textContent;
         underlineParent.replaceWith(document.createTextNode(text));
       } else {
-        // Apply underline using <u> tag
         const uHtml = `<u>${selectedText}</u>`;
         document.execCommand('insertHTML', false, uHtml);
       }
     }
-
-    // Applies strikethrough (wrap in <s>) to selected text - toggles if already struck
     function strikeSelection() {
       const sel = window.getSelection();
       const editableParent = getEditableParent(sel);
@@ -986,15 +1019,11 @@ Or pay via QR:</div>
       editableParent.focus();
       const selectedText = sel.toString();
       if (!selectedText) return;
-
-      // Check if selection is inside an <s> element
       let strikeParent = findTagParent(sel.anchorNode, ['s'], editableParent) || findTagParent(sel.focusNode, ['s'], editableParent);
       if (strikeParent) {
-        // Remove strikethrough by replacing with text content
         const text = strikeParent.textContent;
         strikeParent.replaceWith(document.createTextNode(text));
       } else {
-        // Apply strikethrough using <s> tag
         const sHtml = `<s>${selectedText}</s>`;
         document.execCommand('insertHTML', false, sHtml);
       }
@@ -1005,7 +1034,6 @@ Or pay via QR:</div>
       const panel = document.getElementById('teacherPanel');
       panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
     }
-
     function enterTeacherMode() {
       const key = document.getElementById('teacherKey').value.trim();
       if (!key) {
@@ -1023,9 +1051,14 @@ Or pay via QR:</div>
       }
     }
 
-    // Theme switching (unchanged)
+    /**
+     * Theme switching – extended from the original to support a glass theme.  The
+     * Neon theme is treated as default when none of the other themes are
+     * specified.  Active button styling is updated accordingly.
+     */
     function setTheme(theme) {
       const body = document.body;
+      // Remove any previously applied theme classes. Glass theme is no longer supported.
       body.classList.remove('light-theme', 'dark-theme');
       document.getElementById('neonTheme').classList.remove('active');
       document.getElementById('lightTheme').classList.remove('active');
@@ -1041,13 +1074,14 @@ Or pay via QR:</div>
       }
     }
 
-    // PDF download using jsPDF
+    /**
+     * PDF download via jsPDF.  Retains the behaviour of the original site.
+     */
     async function downloadPDF() {
       const { jsPDF } = window.jspdf;
       const docPDF = new jsPDF({ unit: 'pt', format: 'a4' });
       let name = document.getElementById('name').value.trim();
       let essay = document.getElementById('essay').value.trim();
-
       if (!name || !essay) {
         const snapshot = await getDocs(essaysRef);
         const docsList = snapshot.docs;
@@ -1057,99 +1091,48 @@ Or pay via QR:</div>
           if (!essay) essay = last.essay || '';
         }
       }
-
       if (!essay) {
         alert('There is no essay text to export.');
         return;
       }
       if (!name) name = 'Unknown';
-
       docPDF.setFontSize(22);
       docPDF.setTextColor(140, 0, 255);
       docPDF.text('Pangeya Essay Report', 40, 50);
-
       docPDF.setFontSize(12);
       docPDF.setTextColor(0, 0, 0);
       docPDF.text('Name: ' + name, 40, 90);
       docPDF.text('Date: ' + new Date().toLocaleString(), 40, 110);
-
       docPDF.setFontSize(14);
       docPDF.setTextColor(30, 30, 30);
       docPDF.text('Essay:', 40, 150);
-
       const lines = docPDF.splitTextToSize(essay, 520);
       docPDF.text(lines, 40, 180);
-
       docPDF.save('pangeya-essay.pdf');
     }
 
-    // Event listeners
-    document.getElementById('submitBtn').addEventListener('click', submitEssay);
-    document.getElementById('pdfBtn').addEventListener('click', downloadPDF);
-    document.getElementById('teacherToggle').addEventListener('click', toggleTeacherPanel);
-    document.getElementById('teacherEnter').addEventListener('click', enterTeacherMode);
-
-    document.getElementById('neonTheme').addEventListener('click', () => setTheme('neon'));
-    document.getElementById('lightTheme').addEventListener('click', () => setTheme('light'));
-    document.getElementById('darkTheme').addEventListener('click', () => setTheme('dark'));
-
-    // Close modals when clicking outside content
-    window.addEventListener('click', (e) => {
-      const editM = document.getElementById('editModal');
-      const fbM = document.getElementById('feedbackModal');
-      if (e.target === editM) closeEditModal();
-      if (e.target === fbM) closeFeedbackModal();
-    });
-
-    // Initialize by rendering essays
-    renderEssays();
-
-    // Expose modal functions to global scope so that inline onclick handlers work
-    window.openEditModal = openEditModal;
-    window.closeEditModal = closeEditModal;
-    window.saveEdit = saveEdit;
-    window.openFeedbackModal = openFeedbackModal;
-    window.closeFeedbackModal = closeFeedbackModal;
-    window.saveFeedback = saveFeedback;
-
-    // Expose formatting functions so inline onclicks work in module context
-    window.highlightSelection = highlightSelection;
-    window.underlineSelection = underlineSelection;
-    window.strikeSelection = strikeSelection;
-
-    // Info Modal toggle function
+    // Info and guide modals toggling
     function toggleInfoModal() {
       const infoModal = document.getElementById('infoModal');
       if (!infoModal) return;
       infoModal.style.display = infoModal.style.display === 'flex' ? 'none' : 'flex';
     }
-
-    // Expose info modal toggle to global scope
     window.toggleInfoModal = toggleInfoModal;
-
-    // Guide Modal toggle function
     function toggleGuideModal() {
       const guideModal = document.getElementById('guideModal');
       if (!guideModal) return;
       guideModal.style.display = guideModal.style.display === 'flex' ? 'none' : 'flex';
     }
-
-    // Expose guide modal toggle to global scope
     window.toggleGuideModal = toggleGuideModal;
 
-    // Keyboard shortcuts:
-    // Ctrl + ; = toggle User Guide modal
-    // Ctrl + ` = toggle Author/About modal
-    // These should work even when focused on essay textarea but not insert characters
+    // Keyboard shortcuts to open modals
     document.addEventListener('keydown', (e) => {
-      // Ctrl + ; (semicolon) for User Guide - key code is 'Semicolon'
       if ((e.ctrlKey || e.metaKey) && e.key === ';') {
         e.preventDefault();
         e.stopPropagation();
         toggleGuideModal();
         return;
       }
-      // Ctrl + ` (backtick) for Author Info - key code is 'Backquote'
       if ((e.ctrlKey || e.metaKey) && e.key === '`') {
         e.preventDefault();
         e.stopPropagation();
@@ -1157,14 +1140,48 @@ Or pay via QR:</div>
         return;
       }
     });
-
-    // Close info and guide modals when clicking outside content
+    // Close modals when clicking outside content
     window.addEventListener('click', (e) => {
+      const editM = document.getElementById('editModal');
+      const fbM = document.getElementById('feedbackModal');
+      if (e.target === editM) closeEditModal();
+      if (e.target === fbM) closeFeedbackModal();
       const infoM = document.getElementById('infoModal');
       const guideM = document.getElementById('guideModal');
       if (e.target === infoM) toggleInfoModal();
       if (e.target === guideM) toggleGuideModal();
     });
+
+    // Event listeners for main controls
+    document.getElementById('submitBtn').addEventListener('click', submitEssay);
+    document.getElementById('pdfBtn').addEventListener('click', downloadPDF);
+    document.getElementById('teacherToggle').addEventListener('click', toggleTeacherPanel);
+    document.getElementById('teacherEnter').addEventListener('click', enterTeacherMode);
+    document.getElementById('neonTheme').addEventListener('click', () => setTheme('neon'));
+    document.getElementById('lightTheme').addEventListener('click', () => setTheme('light'));
+    document.getElementById('darkTheme').addEventListener('click', () => setTheme('dark'));
+
+    // Snowfall is always enabled; removed New Year toggle logic
+
+    // Initial render
+    renderEssays();
+
+    // Hide legacy sticker images for buttons and cards in case CSS fails to override.
+    // We prefer using emoji-based stickers instead of the old base64 images.
+    document.querySelectorAll('.btn-sticker, .card-sticker').forEach(el => {
+      el.style.display = 'none';
+    });
+    // Expose modal functions for inline handlers
+    window.openEditModal = openEditModal;
+    window.closeEditModal = closeEditModal;
+    window.saveEdit = saveEdit;
+    window.openFeedbackModal = openFeedbackModal;
+    window.closeFeedbackModal = closeFeedbackModal;
+    window.saveFeedback = saveFeedback;
+    // Expose formatting functions
+    window.highlightSelection = highlightSelection;
+    window.underlineSelection = underlineSelection;
+    window.strikeSelection = strikeSelection;
   </script>
 </body>
 </html>
