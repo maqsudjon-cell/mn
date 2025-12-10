@@ -688,12 +688,70 @@
     /* Emoji sticker for essay cards */
     .essay-card .emoji-card-sticker {
       position: absolute;
-      /* Position near bottom-right corner but fully inside the card */
+      /* Position near bottom‑right corner but fully inside the card */
       bottom: 8px;
       right: 8px;
       font-size: 22px;
       line-height: 1;
+      /* Allow clicking/tapping on the emoji sticker */
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    /* Bubble that displays the custom gift message when the 🎁 sticker is clicked. */
+    .gift-message {
+      position: absolute;
+      /* Display above the sticker */
+      bottom: 36px;
+      right: 8px;
+      background: var(--card-bg);
+      color: var(--text-main);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
       pointer-events: none;
+      z-index: 10;
+    }
+    /* When visible, the gift message fades and scales into view. */
+    .gift-message.show-gift-message {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+    /* Optional pulse animation for emphasis */
+    @keyframes gift-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    .gift-message.pulse {
+      animation: gift-pulse 1s ease-in-out infinite;
+    }
+
+    /* Styling for the gift message input inside the edit modal */
+    .gift-message-edit {
+      margin-top: 10px;
+    }
+    .gift-message-edit label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .gift-message-edit input {
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: transparent;
+      color: var(--text-main);
+      outline: none;
     }
     /* Snow container spans only the header region; pointer‑events none ensures typing is unaffected */
     .snow-container {
@@ -851,6 +909,12 @@
         <button class="icon-btn" title="Strikethrough Text" onclick="strikeSelection()"><s>S</s></button>
       </div>
       <div id="editArea" class="edit-area" contenteditable="true" spellcheck="false" autocorrect="off" autocapitalize="off"></div>
+
+      <!-- Custom gift message input for the 🎁 sticker -->
+      <div class="gift-message-edit">
+        <label for="giftMessageInput">Gift sticker message</label>
+        <input id="giftMessageInput" type="text" placeholder="Enter custom message or number">
+      </div>
       <div class="modal-actions">
         <button class="small-btn small-save" onclick="saveEdit()">Save</button>
         <button class="small-btn small-cancel" onclick="closeEditModal()">Cancel</button>
@@ -935,7 +999,9 @@ Or pay via QR:</div>
       getDocs,
       doc,
       updateDoc,
-      deleteDoc
+      deleteDoc,
+      getDoc,
+      setDoc
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
     // Constants
@@ -961,6 +1027,51 @@ Or pay via QR:</div>
     const essaysRef = collection(db, "essays");
     // Reference to the vocabulary collection for storing words and definitions
     const vocabRef = collection(db, "vocab");
+
+    // Reference to gift messages collection for storing per‑author sticker text
+    // Each document id corresponds to the essay author's name and stores a `message` field
+    // Example: { name: "John", message: "1-800" }
+    // Use helper functions below to get and set messages
+
+    /**
+     * Retrieve the custom gift message for a given author name. If no message is set,
+     * returns an empty string. Errors are silently caught and logged.
+     * @param {string} name
+     * @returns {Promise<string>}
+     */
+    async function getGiftMessage(name) {
+      if (!name) return '';
+      try {
+        const docRef = doc(db, 'giftMessages', name);
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          return data && data.message ? data.message : '';
+        }
+        return '';
+      } catch (err) {
+        console.error('Error fetching gift message for', name, err);
+        return '';
+      }
+    }
+
+    /**
+     * Save or update the custom gift message for a given author name.  Uses merge
+     * to preserve other fields if present.  This function does not return a value.
+     * @param {string} name
+     * @param {string} message
+     */
+    async function saveGiftMessage(name, message) {
+      if (!name) return;
+      try {
+        await setDoc(doc(db, 'giftMessages', name), { message: message }, { merge: true });
+      } catch (err) {
+        console.error('Error saving gift message for', name, err);
+      }
+    }
+
+    // Track the author name currently being edited so we know which gift message to update
+    let currentEditName = null;
 
     /**
      * Escape HTML special characters to prevent XSS when rendering content from
@@ -1042,7 +1153,7 @@ Or pay via QR:</div>
         const tB = typeof b.data.timestamp === 'number' ? b.data.timestamp : parseDateString(b.data.date);
         return tB - tA;
       });
-      filteredArray.forEach(item => {
+      for (const item of filteredArray) {
         const data = item.data;
         const docId = item.id;
         const card = document.createElement('div');
@@ -1115,22 +1226,49 @@ Or pay via QR:</div>
         actions.appendChild(delBtn);
         actions.appendChild(fbBtn);
         card.appendChild(actions);
-        // Card sticker element for New Year mode
+        // Card sticker element for New Year mode (gift image). This remains decorative.
         const cardSticker = document.createElement('img');
-        // Use embedded gift icon for the essay card sticker
         cardSticker.src = 'data:image/png;base64,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';
         cardSticker.alt = 'Gift sticker';
         cardSticker.className = 'card-sticker';
         card.appendChild(cardSticker);
 
-        // Add our own emoji sticker to the card in the bottom right corner
+        // Emoji sticker (🎁) to trigger showing the custom message
         const cardEmoji = document.createElement('span');
         cardEmoji.className = 'emoji-card-sticker';
         cardEmoji.textContent = '🎁';
         card.appendChild(cardEmoji);
 
+        // Container for the custom gift message; we fetch the message for the author
+        const giftMessageEl = document.createElement('div');
+        giftMessageEl.className = 'gift-message';
+        // We'll populate below
+        card.appendChild(giftMessageEl);
+
+        // Fetch the gift message asynchronously
+        const giftMsg = await getGiftMessage(data.name || '');
+        if (giftMsg) {
+          giftMessageEl.textContent = giftMsg;
+        }
+
+        // Toggle showing/hiding the message when the emoji is clicked
+        cardEmoji.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const visible = giftMessageEl.classList.contains('show-gift-message');
+          if (visible) {
+            giftMessageEl.classList.remove('show-gift-message');
+            giftMessageEl.classList.remove('pulse');
+          } else {
+            // Only show if there is content; if empty string, nothing to show
+            if (giftMessageEl.textContent && giftMessageEl.textContent.trim() !== '') {
+              giftMessageEl.classList.add('show-gift-message');
+              giftMessageEl.classList.add('pulse');
+            }
+          }
+        });
+
         container.appendChild(card);
-      });
+      }
     }
 
     /**
@@ -1168,10 +1306,17 @@ Or pay via QR:</div>
     }
 
     // Edit modal handlers
-    function openEditModal(docId, data) {
+    async function openEditModal(docId, data) {
       currentEditId = docId;
+      currentEditName = data && data.name ? data.name : null;
       const editArea = document.getElementById('editArea');
       editArea.innerHTML = data.essay || '';
+      // Preload existing gift message for this author into the input
+      const giftInput = document.getElementById('giftMessageInput');
+      if (giftInput) {
+        const msg = await getGiftMessage(currentEditName || '');
+        giftInput.value = msg || '';
+      }
       document.getElementById('editModal').style.display = 'flex';
     }
     function closeEditModal() {
@@ -1181,8 +1326,17 @@ Or pay via QR:</div>
     async function saveEdit() {
       if (!currentEditId) return;
       const updated = document.getElementById('editArea').innerHTML;
+      // Save the updated essay text
       await updateDoc(doc(db, 'essays', currentEditId), { essay: updated });
-      renderEssays();
+      // Save the gift message if provided
+      const giftInput = document.getElementById('giftMessageInput');
+      if (giftInput && currentEditName) {
+        const newMsg = giftInput.value.trim();
+        // Persist message across all essays by this author
+        await saveGiftMessage(currentEditName, newMsg);
+      }
+      // Re-render essays to update messages
+      await renderEssays();
       closeEditModal();
     }
 
