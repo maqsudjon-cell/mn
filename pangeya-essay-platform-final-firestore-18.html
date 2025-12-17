@@ -918,14 +918,71 @@
     .snowflake:nth-child(9) { left: 85%; font-size: 14px; animation: fall 9s linear infinite; animation-delay: 1.5s; }
     .snowflake:nth-child(10) { left: 95%; font-size: 11px; animation: fall 8s linear infinite; animation-delay: 3.5s; }
     /* Removed the New Year toggle styles; snow is always on */
+
+    /* Rain effect styles */
+    .rain-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 160px;
+      overflow: hidden;
+      pointer-events: none;
+      display: none;
+      z-index: 1;
+    }
+    /* Show raindrops when in rain-mode */
+    body.rain-mode .rain-container { display: block; }
+    .raindrop {
+      position: absolute;
+      top: -10px;
+      color: #ffffff;
+      opacity: 0.8;
+      user-select: none;
+      will-change: transform;
+      /* Use the same falling animation but without rotation */
+      animation: rain-fall linear infinite;
+    }
+    /* Define the rain drop fall animation */
+    @keyframes rain-fall {
+      0% { transform: translateY(0); opacity: 0.8; }
+      100% { transform: translateY(180px); opacity: 0.1; }
+    }
+    /* Assign positions and timings for individual drops */
+    .raindrop:nth-child(1) { left: 5%; font-size: 12px; animation-duration: 4s; animation-delay: 0s; }
+    .raindrop:nth-child(2) { left: 15%; font-size: 16px; animation-duration: 5s; animation-delay: 1s; }
+    .raindrop:nth-child(3) { left: 25%; font-size: 10px; animation-duration: 3s; animation-delay: 2s; }
+    .raindrop:nth-child(4) { left: 35%; font-size: 14px; animation-duration: 4.5s; animation-delay: 0.5s; }
+    .raindrop:nth-child(5) { left: 45%; font-size: 13px; animation-duration: 3.5s; animation-delay: 1.5s; }
+    .raindrop:nth-child(6) { left: 55%; font-size: 11px; animation-duration: 4s; animation-delay: 2.5s; }
+    .raindrop:nth-child(7) { left: 65%; font-size: 15px; animation-duration: 5s; animation-delay: 0.75s; }
+    .raindrop:nth-child(8) { left: 75%; font-size: 12px; animation-duration: 4s; animation-delay: 1.25s; }
+    .raindrop:nth-child(9) { left: 85%; font-size: 14px; animation-duration: 4.5s; animation-delay: 1.75s; }
+    .raindrop:nth-child(10) { left: 95%; font-size: 11px; animation-duration: 3.5s; animation-delay: 2.25s; }
+
+    /* Weather toggle button styling */
+    .weather-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(45deg, #8e2de2, #4a00e0);
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      margin-left: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .weather-btn:hover {
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 <body class="neon-theme newyear-mode">
-  <!-- Fixed button linking to the vocabulary page -->
-  <!-- Button to switch to the vocabulary section within the same page -->
-  <a href="#" class="vocab-page-btn" onclick="switchToVocab(); return false;">Vocabulary 📖</a>
-  <!-- Button to switch to the chat section -->
-  <a href="#" class="chat-page-btn" onclick="switchToChat(); return false;">Chat with Pangeya AI 💬</a>
+  <!-- Vocabulary and Chat features have been removed -->
   <div class="container">
     <div id="essaySection" class="inner">
       <h1>✨ Pangeya Essay Platform</h1>
@@ -943,6 +1000,19 @@
         <div class="snowflake">❆</div>
         <div class="snowflake">❅</div>
       </div>
+      <!-- Rain effect overlay (falls within header area) -->
+      <div class="rain-container" aria-hidden="true">
+        <div class="raindrop">💧</div>
+        <div class="raindrop">💧</div>
+        <div class="raindrop">💧</div>
+        <div class="raindrop">💧</div>
+        <div class="raindrop">💧</div>
+        <div class="raindrop">💧</div>
+        <div class="raindrop">💧</div>
+        <div class="raindrop">💧</div>
+        <div class="raindrop">💧</div>
+        <div class="raindrop">💧</div>
+      </div>
       <!-- Theme switcher: Neon, Light, Dark and the new Glass -->
       <div class="theme-switcher">
         <button class="theme-btn active" id="neonTheme">Neon</button>
@@ -950,6 +1020,8 @@
         <button class="theme-btn" id="darkTheme">Dark</button>
         <button class="theme-btn" id="pangeyaTheme">Pangeya</button>
         <!-- Removed the unused Glass mode button -->
+        <!-- Weather toggle button: click to switch between snow and rain -->
+        <button class="weather-btn" id="weatherToggle" onclick="toggleWeather()" title="Toggle snow/rain">🌧</button>
       </div>
       <!-- Name input wrapped so the tree emoji can sit inside -->
       <label for="name">Your name</label>
@@ -984,66 +1056,14 @@
         <span class="icon">🎄</span>
         <span>All Essays</span>
       </div>
-    <!-- Search bar and AI button for finding essays by author name -->
+    <!-- Search bar for finding essays by author name -->
     <div class="essay-search-controls">
-      <input id="essaySearch" type="text" placeholder="Search by name">
-      <button id="essaySearchBtn">Find essay with AI</button>
+        <input id="essaySearch" type="text" placeholder="Search essays...">
     </div>
       <div class="essays-list" id="essaysList"></div>
     </div> <!-- end of essaySection -->
 
-    <!-- Vocabulary section: initially hidden; becomes visible when the user clicks the Vocabulary button.
-         This section allows users to add new words and definitions, search existing vocabulary by word,
-         and displays entries in a two-column dictionary style. -->
-    <div id="vocabSection" class="inner" style="display:none;">
-      <h1>📚 Pangeya Vocabulary</h1>
-      <div class="subtitle">Learn new words and add your own definitions</div>
-      <!-- Optional theme switcher for the vocabulary section. Buttons call setTheme with the
-           appropriate argument just like in the essay section. Unique IDs are used to avoid
-           duplicate elements. -->
-      <div class="theme-switcher">
-        <button class="theme-btn" id="neonThemeV" onclick="setTheme('neon')">Neon</button>
-        <button class="theme-btn" id="lightThemeV" onclick="setTheme('light')">Light</button>
-        <button class="theme-btn" id="darkThemeV" onclick="setTheme('dark')">Dark</button>
-        <button class="theme-btn" id="pangeyaThemeV" onclick="setTheme('pangeya')">Pangeya</button>
-      </div>
-      <!-- Form for adding vocabulary.  Users can either enter a single word and definition
-           or paste multiple numbered entries into the definition field to add many at once. -->
-      <label for="word">Word</label>
-      <input id="word" type="text" placeholder="Enter a new word" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-      <label for="definition">Definition</label>
-      <textarea id="definition" placeholder="Enter the definition" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
-      <button class="btn btn-primary" id="addVocabBtn">Add Word</button>
-      <!-- Vocabulary list heading and search controls -->
-      <div class="section-title">
-        <span class="icon">📚</span>
-        <span>Vocabulary List</span>
-      </div>
-      <div class="vocab-search-controls">
-        <input id="vocabSearch" type="text" placeholder="Search word">
-        <button id="vocabSearchBtn">Search</button>
-      </div>
-      <div class="vocab-list" id="vocabList"></div>
-      <button class="btn btn-secondary" id="backToEssays">← Back to Essays</button>
-    </div> <!-- end of vocabSection -->
-
-  <!-- Chat section: initially hidden; becomes visible when the user clicks the Chat button. -->
-  <div id="chatSection" class="inner" style="display:none;">
-    <h1>💬 Chat with Pangeya AI</h1>
-    <div class="subtitle">Ask anything about IELTS Writing and get expert guidance from PangeyaAI.</div>
-    <div id="chatMessages" class="chat-messages"></div>
-    <!-- Chat input area now includes an image upload button and a clear chat button. -->
-    <div class="chat-input-area">
-      <button class="chat-image-btn" id="chatImageBtn" title="Upload image">📷</button>
-      <button class="chat-clear-btn" id="chatClearBtn" title="Clear chat">🧹</button>
-      <textarea id="chatInput" placeholder="Type your message here..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
-      <button class="btn btn-primary" id="chatSendBtn">Send</button>
-    </div>
-    <!-- Hidden file input used to select an image. -->
-    <input type="file" id="chatImageInput" accept="image/*" style="display:none;">
-    <div class="chat-disclaimer">PangeyaAI can make mistakes. Check important info.</div>
-    <button class="btn btn-secondary" id="chatBackBtn">← Back to Essays</button>
-  </div> <!-- end of chatSection -->
+    <!-- Vocabulary and Chat sections removed -->
   </div>
   <!-- Snow now always falls; removed toggle button -->
   <!-- Edit Essay Modal -->
@@ -1193,6 +1213,14 @@ Or pay via QR:</div>
     // the user and should remain private.
     const CHAT_API_KEY = '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';
 
+    // Endpoint for the chat backend.  To use the chat feature without CORS
+    // errors, you must run a backend server (e.g. backend-chat-server.js)
+    // that forwards requests to the OpenAI API and returns the response.
+    // When running locally, set this to 'http://localhost:3000/chat'.
+    // When deployed, set to your backend's public URL (e.g.
+    // 'https://your-backend-domain.com/chat').
+    const BACKEND_URL = 'http://localhost:3000/chat';
+
     // System prompt defining PangeyaAI's persona and guidelines.  This
     // prompt instructs the assistant to behave like an IELTS examiner and
     // produce high‑quality essays according to official band descriptors
@@ -1317,6 +1345,29 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
         chatSection.style.display = 'block';
         renderChat();
       }
+
+    // Close switchToChat here (no nested functions)
+    }
+
+    /**
+     * Toggle between snow and rain effects.
+     * When the page is in snow mode (body has class newyear-mode), clicking
+     * the weather toggle button switches to rain mode (adding rain-mode and
+     * removing newyear-mode) and updates the button icon to a snowflake so
+     * the user can switch back.  When in rain mode, it does the opposite.
+     */
+    function toggleWeather() {
+      const body = document.body;
+      const toggleBtn = document.getElementById('weatherToggle');
+      if (body.classList.contains('rain-mode')) {
+        body.classList.remove('rain-mode');
+        body.classList.add('newyear-mode');
+        if (toggleBtn) toggleBtn.textContent = '🌧';
+      } else {
+        body.classList.remove('newyear-mode');
+        body.classList.add('rain-mode');
+        if (toggleBtn) toggleBtn.textContent = '❄';
+      }
     }
 
     /**
@@ -1369,11 +1420,22 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
         // have access.
         const hasImage = chatHistory.some(m => m.imageData);
         const model = hasImage ? 'gpt-4o' : 'gpt-3.5-turbo';
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        // Forward chat messages to our backend server instead of calling
+        // OpenAI directly.  Browsers enforce CORS policies that block
+        // cross‑origin requests to api.openai.com.  A backend server
+        // (see backend-chat-server.js) proxies the request and hides your
+        // API key.  Set BACKEND_URL to the URL of your backend when
+        // running locally or deployed.
+        // Use your backend server to proxy requests to OpenAI.  See
+        // backend-chat-server.js for a sample implementation.  Set
+        // BACKEND_URL to the absolute URL of your deployed backend (e.g.
+        // 'http://localhost:3000/chat' when running locally or
+        // 'https://your-backend-domain.com/chat' in production).  The backend
+        // must forward your OpenAI API key and return the response JSON.
+        const response = await fetch(BACKEND_URL, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + CHAT_API_KEY
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             model: model,
@@ -1445,11 +1507,13 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
         // otherwise fall back to gpt-3.5-turbo for plain text conversations.
         const hasImage = chatHistory.some(m => m.imageData);
         const model = hasImage ? 'gpt-4o' : 'gpt-3.5-turbo';
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        // Use the same backend endpoint as in sendChatMessage to proxy the
+        // request to the OpenAI API.  See comments in sendChatMessage for
+        // details.
+        const response = await fetch(BACKEND_URL, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + CHAT_API_KEY
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             model: model,
@@ -1516,6 +1580,21 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
         console.warn('toDateSafe error for value', value, err);
       }
       return new Date(0);
+    }
+
+    /**
+     * Strip HTML tags from a string.  This helper extracts the text content
+     * from markup so that search queries can match plain text inside
+     * essays without being affected by embedded HTML tags or formatting.
+     * @param {string} html The HTML string to strip
+     * @returns {string} Plain text
+     */
+    function stripHtml(html) {
+      if (!html) return '';
+      // Create a temporary DOM element and assign the HTML to its innerHTML.
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      return tmp.textContent || tmp.innerText || '';
     }
 
     /**
@@ -1616,7 +1695,7 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
      * preserved from the original; we simply assign a class and rely on CSS for
      * the New Year sticker on each card.
      */
-    async function renderEssays(queryName = '') {
+    async function renderEssays(queryName = '', showLatestOnly = false) {
       const container = document.getElementById('essaysList');
       // Increment the request counter and capture this call's id.
       const myRequestId = ++essayRequestCounter;
@@ -1679,16 +1758,25 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
       const qName = (queryName || '').toString().trim().toLowerCase();
       let filteredArray = allEssays;
       if (qName) {
+        // When a search query is provided, match it against the author's name
+        // and the plain text of the essay.  We strip HTML tags from the
+        // essay content so that search terms can match the visible text.
         filteredArray = allEssays.filter(item => {
           const nm = (item.data.name || '').toString().toLowerCase();
-          return nm.includes(qName);
+          const essayText = stripHtml(item.data.essay || '').toLowerCase();
+          return nm.includes(qName) || essayText.includes(qName);
         });
       }
+      // Sort descending by timestamp/date using safe conversion
       filteredArray.sort((a, b) => {
         const tA = toDateSafe(a.data.timestamp ?? a.data.date).getTime();
         const tB = toDateSafe(b.data.timestamp ?? b.data.date).getTime();
         return tB - tA;
       });
+      // If no search query and we only want the most recent essay, slice the array
+      if (!qName && showLatestOnly && filteredArray.length > 0) {
+        filteredArray = [filteredArray[0]];
+      }
       for (const item of filteredArray) {
         // Abort if this render is stale.  If a newer renderEssays() call
         // has updated essayRequestCounter, we stop building to prevent
@@ -1824,11 +1912,14 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
      * contents of the search input and calls renderEssays with the
      * provided query.  If the input is empty, all essays are shown.
      */
-    function searchEssays() {
-      const input = document.getElementById('essaySearch');
-      const query = input ? input.value.trim() : '';
-      renderEssays(query);
-    }
+        function searchEssays() {
+          const input = document.getElementById('essaySearch');
+          const query = input ? input.value.trim() : '';
+          // When the query is empty, show the full list of essays.  Otherwise
+          // filter by the query.  The second parameter is left as default
+          // (false) so that renderEssays shows all when empty.
+          renderEssays(query);
+        }
 
     /** Submit a new essay to Firestore */
     async function submitEssay() {
@@ -2156,13 +2247,14 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
       pangeyaBtn.addEventListener('click', () => setTheme('pangeya'));
     }
 
-    // Search button and input events
-    const essaySearchBtn = document.getElementById('essaySearchBtn');
+    // Search input events: update essay list as the user types or clears the search
     const essaySearchInput = document.getElementById('essaySearch');
-    if (essaySearchBtn) {
-      essaySearchBtn.addEventListener('click', searchEssays);
-    }
     if (essaySearchInput) {
+      // Re-render essays on every input change (typing or clearing)
+      essaySearchInput.addEventListener('input', () => {
+        searchEssays();
+      });
+      // Also allow pressing Enter to trigger the search explicitly
       essaySearchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -2176,8 +2268,7 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
     // Initial render
     renderEssays();
 
-    // Also render vocabulary list on load
-    renderVocab();
+    // Vocabulary removed: no need to render vocabulary list
 
     // =============================================
     // Vocabulary module
@@ -2462,16 +2553,10 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
     // onclick handlers can invoke them.  Without these assignments the
     // functions live in the module scope and are unavailable to the anchor
     // element defined in the HTML.
-    window.switchToVocab = switchToVocab;
+    // Only expose the functions still used in the UI
     window.switchToEssays = switchToEssays;
-    window.switchToChat = switchToChat;
-    window.sendChatMessage = sendChatMessage;
-    // Expose deleteVocab for potential inline usage (not required for current
-    // implementation, but kept for consistency with other exposed functions)
-    window.deleteVocab = deleteVocab;
-    // Expose chat utility functions so they are accessible if needed in inline handlers.
-    window.handleImageUpload = handleImageUpload;
-    window.clearChat = clearChat;
+    // Expose the weather toggle so it can be called from the weather button
+    window.toggleWeather = toggleWeather;
   </script>
 </body>
 </html>
