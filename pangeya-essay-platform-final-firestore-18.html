@@ -1921,18 +1921,10 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
         // We'll populate below
         card.appendChild(giftMessageEl);
 
-        // Fetch the gift message asynchronously.  If a message exists for
-        // this author, assign it to the element and mark the element as
-        // having a saved message via a dataset flag.  Otherwise mark the
-        // element as having no saved message.  This prevents a default
-        // placeholder from being shown when the student has not written
-        // their own gift note.
+        // Fetch the gift message asynchronously
         const giftMsg = await getGiftMessage(data.name || '');
         if (giftMsg) {
           giftMessageEl.textContent = giftMsg;
-          giftMessageEl.dataset.hasSaved = 'true';
-        } else {
-          giftMessageEl.dataset.hasSaved = 'false';
         }
         // After awaiting an async call, ensure this render is still current
         if (myRequestId !== essayRequestCounter) {
@@ -1943,18 +1935,15 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
         cardEmoji.addEventListener('click', (e) => {
           e.stopPropagation();
           const visible = giftMessageEl.classList.contains('show-gift-message');
-          // Determine if the author has saved a gift message.  If there is
-          // no saved message, we do not display a placeholder; the
-          // student can add a message via the edit modal.
-          const hasSaved = giftMessageEl.dataset.hasSaved === 'true';
           if (visible) {
             // Hide the message and stop pulsing
             giftMessageEl.classList.remove('show-gift-message');
             giftMessageEl.classList.remove('pulse');
           } else {
-            // Only show the message if it has been saved by the author
-            if (!hasSaved) {
-              return;
+            // If no custom message has been stored for this author, pick a random joke
+            const hasContent = giftMessageEl.textContent && giftMessageEl.textContent.trim() !== '';
+            if (!hasContent) {
+              giftMessageEl.textContent = randomJoke();
             }
             giftMessageEl.classList.add('show-gift-message');
             giftMessageEl.classList.add('pulse');
@@ -2627,7 +2616,7 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
 
     // ---------------------------------------------------------------------
     // Customization: Disable paste in the essay textarea unless a pass phrase
-    // ("The quick brown fox jumps over the lazy dog") has been typed. This
+    // ("Pink bubblegumzilla") has been typed. This
     // prevents students from pasting AI‑generated text without first proving
     // they can type the phrase manually. Once the phrase has been entered,
     // paste is enabled for the session and the phrase can be deleted.
@@ -2642,11 +2631,11 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
             // restriction is accompanied by a playful "ninjas" reference,
             // mirroring the UX shown in the latest mockup.  Once the
             // pass phrase is typed, paste is permitted.
-            alert('🚫 No copy‑paste ninjas: To unlock paste, please type "The quick brown fox jumps over the lazy dog" first.');
+            alert('🚫 No copy‑paste ninjas: To unlock paste, please type "Pink bubblegumzilla" first.');
           }
         });
         essayEl.addEventListener('input', () => {
-          if (!pasteAllowed && essayEl.value.includes('The quick brown fox jumps over the lazy dog')) {
+          if (!pasteAllowed && essayEl.value.includes('Pink bubblegumzilla')) {
             pasteAllowed = true;
           }
         });
