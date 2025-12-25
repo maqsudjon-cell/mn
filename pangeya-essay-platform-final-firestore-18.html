@@ -1921,10 +1921,18 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
         // We'll populate below
         card.appendChild(giftMessageEl);
 
-        // Fetch the gift message asynchronously
+        // Fetch the gift message asynchronously.  If a message exists for
+        // this author, assign it to the element and mark the element as
+        // having a saved message via a dataset flag.  Otherwise mark the
+        // element as having no saved message.  This prevents a default
+        // placeholder from being shown when the student has not written
+        // their own gift note.
         const giftMsg = await getGiftMessage(data.name || '');
         if (giftMsg) {
           giftMessageEl.textContent = giftMsg;
+          giftMessageEl.dataset.hasSaved = 'true';
+        } else {
+          giftMessageEl.dataset.hasSaved = 'false';
         }
         // After awaiting an async call, ensure this render is still current
         if (myRequestId !== essayRequestCounter) {
@@ -1935,15 +1943,18 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
         cardEmoji.addEventListener('click', (e) => {
           e.stopPropagation();
           const visible = giftMessageEl.classList.contains('show-gift-message');
+          // Determine if the author has saved a gift message.  If there is
+          // no saved message, we do not display a placeholder; the
+          // student can add a message via the edit modal.
+          const hasSaved = giftMessageEl.dataset.hasSaved === 'true';
           if (visible) {
             // Hide the message and stop pulsing
             giftMessageEl.classList.remove('show-gift-message');
             giftMessageEl.classList.remove('pulse');
           } else {
-            // If no custom message has been stored for this author, pick a random joke
-            const hasContent = giftMessageEl.textContent && giftMessageEl.textContent.trim() !== '';
-            if (!hasContent) {
-              giftMessageEl.textContent = randomJoke();
+            // Only show the message if it has been saved by the author
+            if (!hasSaved) {
+              return;
             }
             giftMessageEl.classList.add('show-gift-message');
             giftMessageEl.classList.add('pulse');
