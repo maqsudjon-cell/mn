@@ -59,22 +59,6 @@
       --text-muted: #9ca3af;
     }
 
-    /*
-      Pangeya theme – a rich green palette reminiscent of deep forests.  This
-      theme affects not only the page background but also button gradients
-      and accent colours.  All variables defined here are used in the
-      component-specific overrides further below.
-    */
-    .pangeya-theme {
-      --bg-gradient: linear-gradient(135deg, #191414, #1db954);
-      --card-bg: rgba(25, 20, 20, 0.92);
-      --text-main: #f1f1f1;
-      --text-muted: #b3b3b3;
-      --border-soft: rgba(255, 255, 255, 0.25);
-      --accent: #1db954;
-      --accent2: #1ed760;
-      --accent3: #1db954;
-    }
     /* Glass theme – inspired by iOS 17/18 style glass surfaces.
        It uses translucent backgrounds and applies a backdrop blur on the
        container to give the impression of frosted glass. */
@@ -295,11 +279,6 @@
     .vocab-delete-btn:hover { transform: translateY(-1px); }
     .vocab-delete-btn:active { transform: translateY(0); }
 
-    /* Adapt delete button colour for the Pangeya theme so it remains visible
-       against dark backgrounds. */
-    .pangeya-theme .vocab-delete-btn {
-      background: #e84a5f;
-    }
     .vocab-search-controls {
       display: flex;
       gap: 6px;
@@ -488,29 +467,6 @@
       text-align: center;
     }
 
-    /* Pangeya theme overrides for buttons, chips and active theme indicator.  These
-       ensure that when the Pangeya theme is selected, all interactive
-       elements reflect the green palette. */
-    .pangeya-theme .btn-primary {
-      background: linear-gradient(135deg, #1db954, #1ed760);
-      box-shadow: 0 10px 25px rgba(29, 185, 84, 0.45);
-    }
-    .pangeya-theme .btn-secondary {
-      background: linear-gradient(135deg, #159b5b, #3bbf78);
-      box-shadow: 0 8px 20px rgba(29, 185, 84, 0.35);
-    }
-    .pangeya-theme .btn-teacher {
-      background: linear-gradient(135deg, #158443, #0e5a2f);
-      box-shadow: 0 8px 20px rgba(21, 134, 67, 0.35);
-    }
-    .pangeya-theme .chip-edit { background: #1db954; }
-    .pangeya-theme .chip-delete { background: #e84a5f; }
-    .pangeya-theme .chip-feedback { background: #6ad1e3; }
-    .pangeya-theme .theme-btn.active {
-      background: linear-gradient(135deg, #1db954, #1ed760);
-      color: #ffffff;
-      box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
-    }
     .teacher-panel {
       display: none;
       margin-top: 8px;
@@ -863,16 +819,6 @@
       transform: scale(1);
       pointer-events: auto;
     }
-    /* Optional pulse animation for emphasis */
-    @keyframes gift-pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-    .gift-message.pulse {
-      animation: gift-pulse 1s ease-in-out infinite;
-    }
-
     /* Styling for the gift message input inside the edit modal */
     .gift-message-edit {
       margin-top: 10px;
@@ -935,66 +881,6 @@
     .snowflake:nth-child(10) { left: 95%; font-size: 11px; animation: fall 8s linear infinite; animation-delay: 3.5s; }
     /* Removed the New Year toggle styles; snow is always on */
 
-    /* Rain effect styles */
-    .rain-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 160px;
-      overflow: hidden;
-      pointer-events: none;
-      display: none;
-      z-index: 1;
-    }
-    /* Show raindrops when in rain-mode */
-    body.rain-mode .rain-container { display: block; }
-    .raindrop {
-      position: absolute;
-      top: -10px;
-      color: #ffffff;
-      opacity: 0.8;
-      user-select: none;
-      will-change: transform;
-      /* Use the same falling animation but without rotation */
-      animation: rain-fall linear infinite;
-    }
-    /* Define the rain drop fall animation */
-    @keyframes rain-fall {
-      0% { transform: translateY(0); opacity: 0.8; }
-      100% { transform: translateY(180px); opacity: 0.1; }
-    }
-    /* Assign positions and timings for individual drops */
-    .raindrop:nth-child(1) { left: 5%; font-size: 12px; animation-duration: 4s; animation-delay: 0s; }
-    .raindrop:nth-child(2) { left: 15%; font-size: 16px; animation-duration: 5s; animation-delay: 1s; }
-    .raindrop:nth-child(3) { left: 25%; font-size: 10px; animation-duration: 3s; animation-delay: 2s; }
-    .raindrop:nth-child(4) { left: 35%; font-size: 14px; animation-duration: 4.5s; animation-delay: 0.5s; }
-    .raindrop:nth-child(5) { left: 45%; font-size: 13px; animation-duration: 3.5s; animation-delay: 1.5s; }
-    .raindrop:nth-child(6) { left: 55%; font-size: 11px; animation-duration: 4s; animation-delay: 2.5s; }
-    .raindrop:nth-child(7) { left: 65%; font-size: 15px; animation-duration: 5s; animation-delay: 0.75s; }
-    .raindrop:nth-child(8) { left: 75%; font-size: 12px; animation-duration: 4s; animation-delay: 1.25s; }
-    .raindrop:nth-child(9) { left: 85%; font-size: 14px; animation-duration: 4.5s; animation-delay: 1.75s; }
-    .raindrop:nth-child(10) { left: 95%; font-size: 11px; animation-duration: 3.5s; animation-delay: 2.25s; }
-
-    /* Weather toggle button styling */
-    .weather-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(45deg, #8e2de2, #4a00e0);
-      border: none;
-      color: #fff;
-      font-size: 14px;
-      margin-left: 8px;
-      cursor: pointer;
-      transition: background 0.3s, transform 0.2s;
-    }
-    .weather-btn:hover {
-      transform: translateY(-2px);
-    }
   </style>
 </head>
 <body class="neon-theme newyear-mode">
@@ -1016,28 +902,12 @@
         <div class="snowflake">❆</div>
         <div class="snowflake">❅</div>
       </div>
-      <!-- Rain effect overlay (falls within header area) -->
-      <div class="rain-container" aria-hidden="true">
-        <div class="raindrop">💧</div>
-        <div class="raindrop">💧</div>
-        <div class="raindrop">💧</div>
-        <div class="raindrop">💧</div>
-        <div class="raindrop">💧</div>
-        <div class="raindrop">💧</div>
-        <div class="raindrop">💧</div>
-        <div class="raindrop">💧</div>
-        <div class="raindrop">💧</div>
-        <div class="raindrop">💧</div>
-      </div>
-      <!-- Theme switcher: Neon, Light, Dark and the new Glass -->
+      <!-- Theme switcher: Neon, Light, Dark -->
       <div class="theme-switcher">
         <button class="theme-btn active" id="neonTheme">Neon</button>
         <button class="theme-btn" id="lightTheme">Light</button>
         <button class="theme-btn" id="darkTheme">Dark</button>
-        <button class="theme-btn" id="pangeyaTheme">Pangeya</button>
         <!-- Removed the unused Glass mode button -->
-        <!-- Weather toggle button: click to switch between snow and rain -->
-        <button class="weather-btn" id="weatherToggle" onclick="toggleWeather()" title="Toggle snow/rain">🌧</button>
       </div>
       <!-- Name input wrapped so the tree emoji can sit inside -->
       <label for="name">Your name</label>
@@ -1172,11 +1042,6 @@ Or pay via QR:</div>
   </div>
   <!-- Include jsPDF from CDN for PDF export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- Include js-confetti from CDN for celebratory animations.  This library
-       lets us sprinkle confetti and emoji particles when users click the
-       gift sticker.  The script must be loaded before the module so that
-       JSConfetti is available globally.  See: https://github.com/catdad/js-confetti -->
-  <script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
   <!-- Main application script; imported modules from Firebase remain unchanged.  Additional
        functions implement the new Glass theme, New Year decorations and toggle logic. -->
   <script type="module">
@@ -1199,28 +1064,6 @@ Or pay via QR:</div>
     let teacherMode = false;
     let currentEditId = null;
     let currentFeedbackId = null;
-
-    // -------------------------------------------------------------------
-    // 🎉 Fun enhancements: confetti and random jokes
-    //
-    // To make the gift sticker more engaging, we create a single
-    // JSConfetti instance and a list of jokes.  When the user clicks the
-    // 🎁 icon on a card, if no custom gift message is stored for that
-    // author we pick a random joke instead.  We also sprinkle confetti
-    // (respecting the user's reduced motion preference) whenever the
-    // message bubble is shown.  The js-confetti script is loaded
-    // globally via a separate <script> tag in the HTML head, so
-    // JSConfetti will be available here.
-    const jsConfetti = typeof JSConfetti !== 'undefined' ? new JSConfetti() : null;
-    // Replace the array of jokes with a single playful phrase.  Users
-    // requested a specific "Hazil ninjas" message instead of multiple
-    // Uzbek jokes, so the randomJoke() function will always return this
-    // phrase.  If you wish to add more variations later, extend the
-    // array accordingly.
-    const jokes = ['Hazil ninjas!'];
-    function randomJoke() {
-      return jokes[0];
-    }
 
     // =====================================================================
     // Global state and helpers for essay rendering
@@ -1391,27 +1234,6 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
       }
 
     // Close switchToChat here (no nested functions)
-    }
-
-    /**
-     * Toggle between snow and rain effects.
-     * When the page is in snow mode (body has class newyear-mode), clicking
-     * the weather toggle button switches to rain mode (adding rain-mode and
-     * removing newyear-mode) and updates the button icon to a snowflake so
-     * the user can switch back.  When in rain mode, it does the opposite.
-     */
-    function toggleWeather() {
-      const body = document.body;
-      const toggleBtn = document.getElementById('weatherToggle');
-      if (body.classList.contains('rain-mode')) {
-        body.classList.remove('rain-mode');
-        body.classList.add('newyear-mode');
-        if (toggleBtn) toggleBtn.textContent = '🌧';
-      } else {
-        body.classList.remove('newyear-mode');
-        body.classList.add('rain-mode');
-        if (toggleBtn) toggleBtn.textContent = '❄';
-      }
     }
 
     /**
@@ -1935,27 +1757,11 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
         cardEmoji.addEventListener('click', (e) => {
           e.stopPropagation();
           const visible = giftMessageEl.classList.contains('show-gift-message');
+          const hasContent = giftMessageEl.textContent && giftMessageEl.textContent.trim() !== '';
           if (visible) {
-            // Hide the message and stop pulsing
             giftMessageEl.classList.remove('show-gift-message');
-            giftMessageEl.classList.remove('pulse');
-          } else {
-            // If no custom message has been stored for this author, pick a random joke
-            const hasContent = giftMessageEl.textContent && giftMessageEl.textContent.trim() !== '';
-            if (!hasContent) {
-              giftMessageEl.textContent = randomJoke();
-            }
+          } else if (hasContent) {
             giftMessageEl.classList.add('show-gift-message');
-            giftMessageEl.classList.add('pulse');
-            // Throw confetti unless the user prefers reduced motion
-            const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (!reduceMotion && jsConfetti) {
-              jsConfetti.addConfetti({
-                emojis: ['🎉', '✨', '🎁'],
-                confettiNumber: 75,
-                confettiColors: ['#a855f7', '#ec4899', '#38bdf8', '#22c55e']
-              });
-            }
           }
         });
 
@@ -2175,21 +1981,17 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
     function setTheme(theme) {
       const body = document.body;
       // Remove any previously applied theme classes. Glass theme is no longer supported.
-      body.classList.remove('light-theme', 'dark-theme', 'pangeya-theme');
+      body.classList.remove('light-theme', 'dark-theme');
       document.getElementById('neonTheme').classList.remove('active');
       document.getElementById('lightTheme').classList.remove('active');
       document.getElementById('darkTheme').classList.remove('active');
-      const pangeyaBtn = document.getElementById('pangeyaTheme');
-      if (pangeyaBtn) pangeyaBtn.classList.remove('active');
       // Reset active states on duplicate theme buttons in the vocabulary section
       const neonV = document.getElementById('neonThemeV');
       const lightV = document.getElementById('lightThemeV');
       const darkV = document.getElementById('darkThemeV');
-      const pangeyaV = document.getElementById('pangeyaThemeV');
       if (neonV) neonV.classList.remove('active');
       if (lightV) lightV.classList.remove('active');
       if (darkV) darkV.classList.remove('active');
-      if (pangeyaV) pangeyaV.classList.remove('active');
       if (theme === 'light') {
         body.classList.add('light-theme');
         document.getElementById('lightTheme').classList.add('active');
@@ -2198,10 +2000,6 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
         body.classList.add('dark-theme');
         document.getElementById('darkTheme').classList.add('active');
         if (darkV) darkV.classList.add('active');
-      } else if (theme === 'pangeya') {
-        body.classList.add('pangeya-theme');
-        if (pangeyaBtn) pangeyaBtn.classList.add('active');
-        if (pangeyaV) pangeyaV.classList.add('active');
       } else {
         document.getElementById('neonTheme').classList.add('active');
         if (neonV) neonV.classList.add('active');
@@ -2296,12 +2094,6 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
     document.getElementById('neonTheme').addEventListener('click', () => setTheme('neon'));
     document.getElementById('lightTheme').addEventListener('click', () => setTheme('light'));
     document.getElementById('darkTheme').addEventListener('click', () => setTheme('dark'));
-
-    // Pangeya theme button – apply the green palette when clicked
-    const pangeyaBtn = document.getElementById('pangeyaTheme');
-    if (pangeyaBtn) {
-      pangeyaBtn.addEventListener('click', () => setTheme('pangeya'));
-    }
 
     // Search input events: update essay list as the user types or clears the search
     const essaySearchInput = document.getElementById('essaySearch');
@@ -2611,9 +2403,6 @@ You represent PangeyaAI, the intelligent core of a modern and reliable IELTS pre
     // element defined in the HTML.
     // Only expose the functions still used in the UI
     window.switchToEssays = switchToEssays;
-    // Expose the weather toggle so it can be called from the weather button
-    window.toggleWeather = toggleWeather;
-
     // ---------------------------------------------------------------------
     // Customization: Disable paste in the essay textarea unless a pass phrase
     // ("Pink bubblegumzilla") has been typed. This
